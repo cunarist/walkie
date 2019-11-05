@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2024
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RhinoWASD", "RhinoWASD\RhinoWASD.csproj", "{DE3B3B38-811D-4F0C-A895-AE80F1012BC4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DE3B3B38-811D-4F0C-A895-AE80F1012BC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE3B3B38-811D-4F0C-A895-AE80F1012BC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE3B3B38-811D-4F0C-A895-AE80F1012BC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE3B3B38-811D-4F0C-A895-AE80F1012BC4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {35A4C0AE-0A6A-4DB3-B2F3-8C073D5F831F}
+	EndGlobalSection
+EndGlobal
