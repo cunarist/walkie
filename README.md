@@ -1,6 +1,6 @@
 # Installation
 
-Run the Walke.rhi to install the plugin. Optionally you can also manually place the Walkie.rhp in your preferred location and drop it onto the Rhinoceros main Window to install the plugin.
+Run the `Walke.rhi` to install the plugin. You can also manually drop and drop `Walkie.rhp` it onto the Rhinoceros main Window to install the plugin.
 
 # Usage
 
