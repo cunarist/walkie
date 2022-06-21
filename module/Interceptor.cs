@@ -20,6 +20,8 @@ namespace RhinoWASD
         private const int WM_LBUTTONUP = 0x0202;
         private const int WM_RBUTTONDOWN = 0x0204;
         private const int WM_RBUTTONUP = 0x0205;
+        private const int WM_MBUTTONDOWN = 0x0207;
+        private const int WM_MBUTTONUP = 0x0208;
         private const int WM_MOUSEWHEEL = 0x020A;
 
         private const int TIMER_INVERVAL = 1;
@@ -185,7 +187,7 @@ namespace RhinoWASD
             if (nCode < 0)
                 return CallNextHookEx((IntPtr)0, nCode, wParam, lParam);
 
-            if (wParam == (IntPtr)WM_LBUTTONDOWN || wParam == (IntPtr)WM_RBUTTONDOWN)
+            if (wParam == (IntPtr)WM_LBUTTONDOWN || wParam == (IntPtr)WM_RBUTTONDOWN || wParam == (IntPtr)WM_MBUTTONDOWN)
                 StopWASD();
 
             if (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_KEYUP)
