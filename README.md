@@ -1,6 +1,6 @@
 # About
 
-A game-like navigation plugin for Rhinoceros. Only Supports Windows.
+A game-like walk navigation plugin for Rhinoceros. Only Supports Windows.
 
 # Installation
 
