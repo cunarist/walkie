@@ -46,9 +46,9 @@ namespace RhinoWASD
             if (!string.IsNullOrEmpty(CurrentNamedView))
             {
                 cur = RhinoDoc.ActiveDoc.NamedViews.FindByName(CurrentNamedView);
-                if (cur >=0 && cur < count && IsNamedView(RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport, RhinoDoc.ActiveDoc.NamedViews[cur].Viewport))
+                if (cur >= 0 && cur < count && IsNamedView(RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport, RhinoDoc.ActiveDoc.NamedViews[cur].Viewport))
                     cur--;
-                        
+
             }
             RestoreNamedView(cur);
         }
@@ -132,7 +132,7 @@ namespace RhinoWASD
         private static void Screenshot(Size size, bool ShowGridAndAxes)
         {
             string rhinoFile = RhinoDoc.ActiveDoc.Path;
-            string filename = string.IsNullOrEmpty(rhinoFile) ? "" : Path.GetFileNameWithoutExtension(rhinoFile)+ "_";
+            string filename = string.IsNullOrEmpty(rhinoFile) ? "" : Path.GetFileNameWithoutExtension(rhinoFile) + "_";
             string dir = string.IsNullOrEmpty(rhinoFile) ?
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop) :
                 Path.GetDirectoryName(rhinoFile);
@@ -150,7 +150,7 @@ namespace RhinoWASD
                 File.Delete(path);
 
             img.Save(path);
-            Overlay.ShowMessage("screenshot \"" + name + ".png\" saved");
+            Overlay.ShowMessage("Screenshot \"" + name + ".png\" saved");
         }
     }
 }

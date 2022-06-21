@@ -44,33 +44,33 @@ namespace RhinoWASD
             }
         }
 
-        public static bool F1 =false,
+        public static bool F1 = false,
             F2 = false,
             F3 = false,
             F12 = false,
-            Q = false, 
-            W = false, 
-            E = false, 
-            S = false, 
-            A = false, 
-            D = false, 
-            Shift = false, 
-            Esc = false, 
+            Q = false,
+            W = false,
+            E = false,
+            S = false,
+            A = false,
+            D = false,
+            Shift = false,
+            Esc = false,
             Enter = false;
-        
+
         public static System.Drawing.Point MouseOffset = System.Drawing.Point.Empty;
 
         public static void StartWASD() { StartWASD(true); }
 
         public static void StartWASD(bool InfoAtStartup)
         {
-            if(InfoAtStartup)
+            if (InfoAtStartup)
                 Overlay.ShowImage(Properties.Resources.Info);
 
             //Save Mouse Position & set cursor to primaryscreen center
             ShowCursor(false);
             CursorPositionBuffer = new System.Drawing.Point(Cursor.Position.X, Cursor.Position.Y);
-            LastTargetDistance = 
+            LastTargetDistance =
                 RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport.CameraLocation.DistanceTo(
                     RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport.CameraTarget
                 );
@@ -124,7 +124,7 @@ namespace RhinoWASD
         {
             if (MouseOffset.IsEmpty && !Q && !W && !E && !A && !S && !D)
                 return;
-            
+
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
             Point3d loc = vp.CameraLocation;
             Vector3d dir = new Vector3d(vp.CameraDirection);
@@ -169,7 +169,7 @@ namespace RhinoWASD
                 Point3d newTarget = vp.CameraLocation + vp.CameraDirection * 10000;
                 vp.SetCameraTarget(newTarget, false);
             }
-            
+
             RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
         }
 
@@ -260,15 +260,17 @@ namespace RhinoWASD
                 }
                 else
                 {
-                    if (speed + delta / 10.0 >= 0.1 && speed + delta / 10.0 <= 1.0)
-                        speed += delta / 10.0;
-
-                    else if (speed + delta >= 1 && speed + delta <= 50)
-                        speed += delta;
-
+                    if (speed < 0.01)
+                        speed = 0.01;
+                    else if (speed > 1000000)
+                        speed = 1000000;
+                    else if (delta < 0 && speed * 0.8 > 0.01)
+                        speed *= 0.8;
+                    else if (delta > 0 && speed * 1.25 < 1000000)
+                        speed *= 1.25;
                     Properties.Settings.Default.Speed = speed;
                     Properties.Settings.Default.Save();
-                    Overlay.ShowMessage("speed " + Math.Round(speed, 1));
+                    Overlay.ShowMessage("speed " + Math.Round(speed, 3));
                 }
             }
             else if ((int)wParam >= WM_LBUTTONDOWN && (int)wParam <= WM_RBUTTONUP)
