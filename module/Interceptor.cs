@@ -250,27 +250,17 @@ namespace RhinoWASD
             else if (wParam == (IntPtr)WM_MOUSEWHEEL)
             {
                 int delta = NativeMethods.GetDelta(lParam) / 120;
-                if (Shift)
-                {
-                    RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport.Camera35mmLensLength += delta;
-                    double llength = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport.Camera35mmLensLength;
-                    Overlay.ShowMessage("lens length " + (int)Math.Round(llength));
-                    RhinoDoc.ActiveDoc.Views.Redraw();
-                }
-                else
-                {
-                    if (speed < 0.01)
-                        speed = 0.01;
-                    else if (speed > 1000000)
-                        speed = 1000000;
-                    else if (delta < 0 && speed * 0.8 > 0.01)
-                        speed *= 0.8;
-                    else if (delta > 0 && speed * 1.25 < 1000000)
-                        speed *= 1.25;
-                    Properties.Settings.Default.Speed = speed;
-                    Properties.Settings.Default.Save();
-                    Overlay.ShowMessage("Speed " + Math.Round(speed, 3));
-                }
+                if (speed < 0.01)
+                    speed = 0.01;
+                else if (speed > 1000000)
+                    speed = 1000000;
+                else if (delta < 0 && speed * 0.8 > 0.01)
+                    speed *= 0.8;
+                else if (delta > 0 && speed * 1.25 < 1000000)
+                    speed *= 1.25;
+                Properties.Settings.Default.Speed = speed;
+                Properties.Settings.Default.Save();
+                Overlay.ShowMessage("Speed " + Math.Round(speed, 3));
             }
             else if ((int)wParam >= WM_LBUTTONDOWN && (int)wParam <= WM_RBUTTONUP)
             {
