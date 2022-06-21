@@ -4,7 +4,7 @@ A game-like walk navigation plugin for Rhinoceros. Only Supports Windows.
 
 # Installation
 
-Run the `Walke.rhi` to install the plugin. You can also manually drop and drop `Walkie.rhp` it onto the Rhinoceros main Window to install the plugin.
+Run the `Walkie.rhi` to install the plugin. You can also manually drop and drop `Walkie.rhp` it onto the Rhinoceros main Window to install the plugin.
 
 # Usage
 
