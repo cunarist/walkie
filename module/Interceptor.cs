@@ -140,23 +140,24 @@ namespace RhinoWASD
             }
 
             // Move camera if some key is pressed
+
+            double finalSpeed = speed;
+
+            if (Shift)
+                finalSpeed *= 4;
+
             if (Q)
-                loc -= Vector3d.ZAxis * speed;
-
+                loc -= Vector3d.ZAxis * finalSpeed;
             if (W)
-                loc += dir * speed;
-
+                loc += dir * finalSpeed;
             if (E)
-                loc += Vector3d.ZAxis * speed;
-
+                loc += Vector3d.ZAxis * finalSpeed;
             if (A)
-                loc -= Vector3d.CrossProduct(dir, up) * speed;
-
+                loc -= Vector3d.CrossProduct(dir, up) * finalSpeed;
             if (S)
-                loc -= dir * speed;
-
+                loc -= dir * finalSpeed;
             if (D)
-                loc += Vector3d.CrossProduct(dir, up) * speed;
+                loc += Vector3d.CrossProduct(dir, up) * finalSpeed;
 
             vp.SetCameraLocation(loc, false);
             if (!vp.IsVisible(vp.CameraTarget))

@@ -7,7 +7,8 @@ Run the Walke.rhi to install the plugin. Optionally you can also manually place 
 ![](image/wasd-screen.png)
 
 1. Use the command `WASD`.
-1. Press `ESCAPE` or left mouse button or right mouse button to stop the behaviour and get back to the usual Rhinoceros 3D Navigation
+1. Move with `W` `A` `S` `D` `Q` `E` keys. Hold down `shift` to move faster as if you are running.
+1. Press `escape` or left mouse button or right mouse button to stop the behaviour and get back to the usual Rhinoceros 3D Navigation
 
 # Extras
 
