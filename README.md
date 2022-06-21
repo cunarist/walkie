@@ -1,15 +1,13 @@
-![](image/repo-social-card.png)
-
 # Installation
 
-Run the RhinoWASD.rhi to install the plugin. Optionally you can also manually place the RhinoWASD.rhp in your preferred location and drop it onto the Rhinoceros main Window, to install the plugin.
+Run the Walke.rhi to install the plugin. Optionally you can also manually place the Walkie.rhp in your preferred location and drop it onto the Rhinoceros main Window to install the plugin.
 
 # Usage
 
-1. Type `WASD` on the commandline and press enter. You should see a screen overlay showing the hotkeys and mouse commands you can use with wasd.
-   ![](image/wasd-screen.png)
+![](image/wasd-screen.png)
 
-1. Press `ESCAPE` to stop the behaviour and get back to the usual Rhinoceros 3D Navigation
+1. Use the command `WASD`.
+1. Press `ESCAPE` or left mouse button or right mouse button to stop the behaviour and get back to the usual Rhinoceros 3D Navigation
 
 # Extras
 
