@@ -10,6 +10,8 @@ Run the `Walke.rhi` to install the plugin. You can also manually drop and drop `
 
 ![](image/wasd-screen.png)
 
+It is recommended to make middle mouse button activate the macro `WASD` in Rhino options.
+
 1. Use the command `WASD`.
 1. Move with `W` `A` `S` `D` `Q` `E` keys. Hold down `shift` to move faster as if you are running.
 1. Press `escape` or left mouse button or right mouse button to stop the behaviour and get back to the usual Rhinoceros 3D Navigation
