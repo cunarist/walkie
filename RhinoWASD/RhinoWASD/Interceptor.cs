@@ -60,13 +60,8 @@ namespace RhinoWASD
 
         public static System.Drawing.Point MouseOffset = System.Drawing.Point.Empty;
 
-        public static void StartWASD() { StartWASD(true); }
-
-        public static void StartWASD(bool InfoAtStartup)
+        public static void StartWASD()
         {
-            if (InfoAtStartup)
-                Overlay.ShowImage(Properties.Resources.Info);
-
             //Save Mouse Position & set cursor to primaryscreen center
             ShowCursor(false);
             CursorPositionBuffer = new System.Drawing.Point(Cursor.Position.X, Cursor.Position.Y);
@@ -270,7 +265,7 @@ namespace RhinoWASD
                         speed *= 1.25;
                     Properties.Settings.Default.Speed = speed;
                     Properties.Settings.Default.Save();
-                    Overlay.ShowMessage("speed " + Math.Round(speed, 3));
+                    Overlay.ShowMessage("Speed " + Math.Round(speed, 3));
                 }
             }
             else if ((int)wParam >= WM_LBUTTONDOWN && (int)wParam <= WM_RBUTTONUP)
