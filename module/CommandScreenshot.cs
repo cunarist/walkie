@@ -15,11 +15,11 @@ namespace RhinoWASD
         private OptionToggle ratioToggle;
         private OptionToggle portraitToggle;
 
-        public Screenshot(){ Instance = this; }
-        
-        public static Screenshot Instance {    get; private set;   }
-        
-        public override string EnglishName{ get { return "Screenshot"; }  }
+        public Screenshot() { Instance = this; }
+
+        public static Screenshot Instance { get; private set; }
+
+        public override string EnglishName { get { return "Screenshot"; } }
 
         protected override Result RunCommand(RhinoDoc doc, RunMode mode)
         {
@@ -74,7 +74,7 @@ namespace RhinoWASD
             if (size.IsEmpty)
                 size = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport.Bounds.Size;
 
-            go.SetCommandPrompt("Screenshot ("+size.Width+"x"+size.Height+")");
+            go.SetCommandPrompt("Screenshot (" + size.Width + "x" + size.Height + ")");
             go.ClearCommandOptions();
             go.AddOptionList("Resolution", new string[] { "FullHD", "4K", "A4", "A3", "View", "Custom" }, ResolutionIndex);
 
