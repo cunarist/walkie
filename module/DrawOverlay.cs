@@ -105,7 +105,7 @@ namespace Display
             int rad = Math.Min(paddingLeftRight, paddingTopBottom);
             int diam = rad * 2;
 
-            Brush brush = new SolidBrush(Color.FromArgb(180, 59, 59, 59));
+            Brush brush = new SolidBrush(Color.FromArgb(191, 0, 0, 0));
             Rectangle box = new Rectangle(
               paddingLeftRight,
               paddingTopBottom,
@@ -188,7 +188,7 @@ namespace Display
                 screenSize = args.Viewport.Bounds.Size;
                 bitmap = DrawInfoImage(displayImage);
             }
-            
+
             args.Display.DrawBitmap(bitmap, 0, 0);
         }
 
@@ -199,7 +199,7 @@ namespace Display
 
             Bitmap bmp = new Bitmap(screenSize.Width, screenSize.Height);
             Graphics g = Graphics.FromImage(bmp);
-            g.Clear(Color.FromArgb(180, 59, 59, 59));
+            g.Clear(Color.FromArgb(191, 0, 0, 0));
 
             // Figure out the ratio
             double ratioX = (double)screenSize.Width / (double)img.Width;
