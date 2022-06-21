@@ -184,6 +184,9 @@ namespace RhinoWASD
             if (nCode < 0)
                 return CallNextHookEx((IntPtr)0, nCode, wParam, lParam);
 
+            if (wParam == (IntPtr)WM_LBUTTONDOWN || wParam == (IntPtr)WM_RBUTTONDOWN)
+                StopWASD();
+
             if (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_KEYUP)
             {
                 bool IsKeyDown = wParam == (IntPtr)WM_KEYDOWN;
