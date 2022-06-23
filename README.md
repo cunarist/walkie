@@ -4,7 +4,7 @@ A game-like walk navigation plugin for Rhinoceros. Only Supports Windows.
 
 # Installation
 
-Run to install it and restart Rhino, that's it.
+Run the installer and restart Rhino, that's it.
 
 # Usage
 
@@ -13,7 +13,7 @@ Run to install it and restart Rhino, that's it.
 It is recommended to make middle mouse button activate the macro `WASD` in Rhino options.
 
 1. Use the command `WASD`.
-1. Move with `W` `A` `S` `D` `Q` `E` keys. Hold down `shift` to move faster as if you are running.
+1. Move with `W` `A` `S` `D` `Q` `E` keys. Hold down `shift` to move faster as if you are running. Scroll to change the speed.
 1. Press `escape` or left mouse button or right mouse button to stop the behaviour and get back to the usual Rhinoceros 3D Navigation
 
 # Extras
