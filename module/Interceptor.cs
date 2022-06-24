@@ -64,7 +64,16 @@ namespace RhinoWASD
 
         public static void ShowSpeedMessage()
         {
-            Overlay.ShowMessage("Speed " + Math.Round(speed, 3));
+            string speedText = "";
+            if (speed >= 1000)
+                speedText = Math.Round(speed, 0).ToString();
+            else if (speed >= 10)
+                speedText = Math.Round(speed, 1).ToString();
+            else if (speed >= 1)
+                speedText = Math.Round(speed, 2).ToString();
+            else
+                speedText = Math.Round(speed, 3).ToString();
+            Overlay.ShowMessage("Speed " + speedText);
         }
 
         public static void StartWASD()
