@@ -8,7 +8,7 @@ Run the installer and restart Rhino, that's it.
 
 # Usage
 
-![](image/wasd-screen.png)
+![](./resource/wasd-screen.png)
 
 It is recommended to make middle mouse button activate the macro `WASD` in Rhino options.
 
