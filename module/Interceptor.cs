@@ -65,7 +65,7 @@ namespace RhinoWASD
         public static void ShowSpeedMessage()
         {
             string speedText = "";
-            if (speed >= 1000)
+            if (speed >= 100)
                 speedText = Math.Round(speed, 0).ToString();
             else if (speed >= 10)
                 speedText = Math.Round(speed, 1).ToString();
