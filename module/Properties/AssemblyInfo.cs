@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 #if DEBUG
 [assembly: Guid("95ABCCA2-5CE3-486A-9592-32464857F283")]
 #else
-    [assembly: Guid("95ABCCA2-5CE3-486A-9592-32464857F282")]
+[assembly: Guid("95ABCCA2-5CE3-486A-9592-32464857F282")]
 #endif
 
 [assembly: AssemblyTitle("Walkie")]

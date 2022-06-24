@@ -91,8 +91,6 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetPath)" "$(TargetDir)$(ProjectName).rhp"
-erase "$(TargetDir)$(ProjectName).dll"
-erase "$(TargetDir)$(ProjectName).dll.config"
 
 PowerShell -Command "if(Test-Path '$(TargetDir)$(ProjectName).rhi'){ Remove-Item '$(TargetDir)$(ProjectName).rhi' }; if(Test-Path '$(TargetDir)Archive.zip'){ Remove-Item '$(TargetDir)Archive.zip' }; Compress-Archive '$(TargetDir)*' '$(TargetDir)Archive.zip';  Rename-Item '$(TargetDir)\Archive.zip' '$(TargetDir)\$(ProjectName).rhi'"</PostBuildEvent>
   </PropertyGroup>
