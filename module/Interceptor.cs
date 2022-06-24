@@ -71,8 +71,10 @@ namespace RhinoWASD
                 speedText = Math.Round(speed, 1).ToString();
             else if (speed >= 1)
                 speedText = Math.Round(speed, 2).ToString();
-            else
+            else if (speed >= 0.1)
                 speedText = Math.Round(speed, 3).ToString();
+            else if (speed >= 0.01)
+                speedText = Math.Round(speed, 4).ToString();
             Overlay.ShowMessage("Speed " + speedText);
         }
 
