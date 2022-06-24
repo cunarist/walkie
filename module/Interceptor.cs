@@ -88,6 +88,8 @@ namespace RhinoWASD
 
             _kHook = SetHook(_proc, true);
             _mHook = SetHook(_proc, false);
+
+            Overlay.ShowMessage("Speed " + Math.Round(speed, 3));
         }
 
         public static void StopWASD()
