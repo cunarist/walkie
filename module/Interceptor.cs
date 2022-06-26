@@ -48,11 +48,7 @@ namespace RhinoWASD
             }
         }
 
-        public static bool F1 = false,
-            F2 = false,
-            F3 = false,
-            F12 = false,
-            Q = false,
+        public static bool Q = false,
             W = false,
             E = false,
             S = false,
@@ -98,7 +94,7 @@ namespace RhinoWASD
             BeforeLocation = vp.CameraLocation;
             BeforeDirection = new Vector3d(vp.CameraDirection);
 
-            F1 = F2 = F3 = F12 = Q = W = E = S = A = D = Shift = Esc = Enter = false;
+            Q = W = E = S = A = D = Shift = Esc = Enter = false;
             if (timer == null)
             {
                 timer = new Timer();
@@ -146,7 +142,7 @@ namespace RhinoWASD
             Cursor.Position = CursorPositionBuffer;
             ShowCursor(true);
 
-            F1 = F2 = F3 = F12 = Q = W = E = S = A = D = Shift = Esc = Enter = false;
+            Q = W = E = S = A = D = Shift = Esc = Enter = false;
         }
 
         private static void OnTick(object sender, EventArgs args)
@@ -228,52 +224,40 @@ namespace RhinoWASD
             {
                 bool IsKeyDown = wParam == (IntPtr)WM_KEYDOWN;
                 Keys key = (Keys)Marshal.ReadInt32(lParam);
-                bool hideOverlay = true;
 
-                if (key == Keys.Escape)
+                if (key == Keys.Enter)
+                    StopWASD(true);
+                else if (key == Keys.Escape)
                     StopWASD(false);
                 else if (key == Keys.Q)
                     Q = IsKeyDown;
-                else if (key == Keys.W || key == Keys.Up)
+                else if (key == Keys.W)
                     W = IsKeyDown;
                 else if (key == Keys.E)
                     E = IsKeyDown;
-                else if (key == Keys.A || key == Keys.Left)
+                else if (key == Keys.A)
                     A = IsKeyDown;
-                else if (key == Keys.S || key == Keys.Down)
+                else if (key == Keys.S)
                     S = IsKeyDown;
-                else if (key == Keys.D || key == Keys.Right)
+                else if (key == Keys.D)
                     D = IsKeyDown;
+                else if (key == Keys.H)
+                {
+                    if (IsKeyDown)
+                        Overlay.ShowImage(Properties.Resources.Info);
+                    else
+                        Overlay.ShowImage(null);
+                }
                 else if (key == Keys.LShiftKey || key == Keys.RShiftKey || key == Keys.Shift || key == Keys.ShiftKey)
                     Shift = IsKeyDown;
-                else if (key == Keys.F1 && IsKeyDown)
+                else if (key == Keys.Left && IsKeyDown)
                     RhinoHelpers.PreviousNamedView();
-                else if (key == Keys.F2 && IsKeyDown)
+                else if (key == Keys.Right && IsKeyDown)
                     RhinoHelpers.NextNamedView();
-                else if (key == Keys.F3 && IsKeyDown)
+                else if (key == Keys.Oemplus && IsKeyDown)
                     RhinoHelpers.SaveNamedView();
-                else if (key == Keys.F12 && IsKeyDown)
-                    RhinoHelpers.CustomScreenshot();
-                else if (key == Keys.Escape)
-                    Esc = IsKeyDown;
-                else if (key == Keys.Enter)
-                {
-                    hideOverlay = false;
-                    if (IsKeyDown)
-                    {
-                        if (Overlay.ImageVisible)
-                            Overlay.ShowImage(null);
-                        else
-                            Overlay.ShowImage(Properties.Resources.Info);
-                    }
-                }
                 else if (key == Keys.PrintScreen)
                     return CallNextHookEx((IntPtr)0, nCode, wParam, lParam); // forward PrintScreen Key
-                else
-                    hideOverlay = false;
-
-                if (hideOverlay && Overlay.ImageVisible)
-                    Overlay.ShowImage(null);
 
                 //RhinoApp.WriteLine("KEY:" + key);
             }

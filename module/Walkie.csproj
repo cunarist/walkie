@@ -48,7 +48,6 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandScreenshot.cs" />
     <Compile Include="CommandWASD.cs" />
     <Compile Include="DrawOverlay.cs" />
     <Compile Include="Interceptor.cs" />
@@ -79,7 +78,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="..\resource\info.png" />
+    <None Include="..\resource\help.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
