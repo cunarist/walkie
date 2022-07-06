@@ -42,7 +42,16 @@ namespace RhinoWASD
         {
             System.Drawing.Point newPosition = Cursor.Position;
             if (newPosition.X != cursorPosition.X || newPosition.Y != cursorPosition.Y)
-                HandleMouseMove();
+            {
+                RhinoView view = Rhino.RhinoDoc.ActiveDoc.Views.ActiveView;
+                int viewWidth = view.ActiveViewport.Size.Width;
+                int viewHeight = view.ActiveViewport.Size.Height;
+                System.Drawing.Point cursorInView = view.ActiveViewport.ScreenToClient(newPosition);
+                int cursorX = cursorInView.X;
+                int cursorY = cursorInView.Y;
+                if (0 < cursorX && cursorX < viewWidth && 0 < cursorY && cursorY < viewHeight)
+                    HandleMouseMove();
+            }
             cursorPosition = newPosition;
         }
 
