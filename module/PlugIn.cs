@@ -23,6 +23,10 @@ namespace RhinoWASD
             timer.Interval = 1;
             timer.Tick += DetectMouseMove;
             timer.Start();
+
+            Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMode = (Rhino.ApplicationSettings.MiddleMouseMode)2;
+            Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMacro = "WASD";
+
             return LoadReturnCode.Success;
         }
 
