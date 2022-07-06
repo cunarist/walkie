@@ -2,7 +2,6 @@
 using Rhino.Display;
 using System;
 using System.Drawing;
-using System.Windows.Forms;
 
 namespace Display
 {
@@ -19,7 +18,7 @@ namespace Display
 
         private static Size messageSize = Size.Empty;
         private static string message;
-        private static DateTime start;
+        private static DateTime showMessageUntil;
 
         public static void ShowMessage(string text) { ShowMessage(text, 2000); }
         public static void ShowMessage(string text, int durationMS)
@@ -28,8 +27,7 @@ namespace Display
                 return;
 
             message = text;
-            start = DateTime.Now;
-            duration = durationMS;
+            showMessageUntil = DateTime.Now.AddMilliseconds(durationMS);
             screenSize = Size.Empty;
             messageSize = Size.Empty;
 
@@ -37,14 +35,9 @@ namespace Display
             if (!IsActive)
             {
                 IsActive = true;
+                ShowImage(null);
                 DisplayPipeline.DrawOverlay += OnDrawMessageOverlay;
             }
-
-            // clear viewports (REDRAW) after duration expired
-            Timer t = new Timer();
-            t.Interval = (int)Math.Ceiling(duration) + 5;
-            t.Tick += (object o, EventArgs e) => { t.Stop(); RhinoDoc.ActiveDoc.Views.Redraw(); };
-            t.Start();
 
             // show message immediately (REDRAW)
             RhinoDoc.ActiveDoc.Views.Redraw();
@@ -55,8 +48,6 @@ namespace Display
             Alignment = StringAlignment.Center,
             LineAlignment = StringAlignment.Center
         };
-
-        private static double duration = 1000;
 
         private static void OnDrawMessageOverlay(object sender, DrawEventArgs args)
         {
@@ -72,8 +63,7 @@ namespace Display
                 DrawMessageBitmap(font);
             }
 
-            int ms = (int)Math.Floor(DateTime.Now.Subtract(start).TotalMilliseconds);
-            if (ms >= duration)
+            if (DateTime.Now >= showMessageUntil)
             {
                 DisplayPipeline.DrawOverlay -= OnDrawMessageOverlay;
                 IsActive = false;
@@ -167,6 +157,7 @@ namespace Display
             if (displayImage != null)
             {
                 screenSize = Size.Empty;
+                showMessageUntil = DateTime.Now;
                 DisplayPipeline.DrawOverlay += OnDrawImageOverlay;
             }
             else
