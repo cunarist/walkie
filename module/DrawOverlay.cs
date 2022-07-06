@@ -37,7 +37,7 @@ namespace Display
             if (!IsActive)
             {
                 IsActive = true;
-                Rhino.Display.DisplayPipeline.DrawOverlay += OnDrawMessageOverlay;
+                DisplayPipeline.DrawOverlay += OnDrawMessageOverlay;
             }
 
             // clear viewports (REDRAW) after duration expired
