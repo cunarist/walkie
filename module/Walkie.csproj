@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>RhinoWASD</RootNamespace>
-    <AssemblyName>RhinoWASD</AssemblyName>
+    <AssemblyName>Walkie</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -92,9 +92,11 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "$(TargetDir)$(ProjectName).rhp"
+    <PostBuildEvent>Copy "$(TargetPath)" "$(TargetDir)$(ProjectName).rhp"
+Erase "$(TargetPath)"
+PowerShell -Command "if(Test-Path '$(TargetDir)$(ProjectName).rhi'){ Remove-Item '$(TargetDir)$(ProjectName).rhi' }; if(Test-Path '$(TargetDir)Archive.zip'){ Remove-Item '$(TargetDir)Archive.zip' }; Compress-Archive '$(TargetDir)*' '$(TargetDir)Archive.zip';  Rename-Item '$(TargetDir)\Archive.zip' '$(TargetDir)\$(ProjectName).rhi'"
 
-PowerShell -Command "if(Test-Path '$(TargetDir)$(ProjectName).rhi'){ Remove-Item '$(TargetDir)$(ProjectName).rhi' }; if(Test-Path '$(TargetDir)Archive.zip'){ Remove-Item '$(TargetDir)Archive.zip' }; Compress-Archive '$(TargetDir)*' '$(TargetDir)Archive.zip';  Rename-Item '$(TargetDir)\Archive.zip' '$(TargetDir)\$(ProjectName).rhi'"</PostBuildEvent>
+"C:\Program Files\McNeel\Rhino Installer Engine\x64\rhiexec.exe" "$(TargetDir)$(ProjectName).rhi" /silent</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <FallbackCulture>en-US</FallbackCulture>
