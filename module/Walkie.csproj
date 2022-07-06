@@ -36,6 +36,9 @@
   <PropertyGroup>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="RhinoCommon">
       <HintPath>C:\Program Files\Rhino 7\System\RhinoCommon.dll</HintPath>
