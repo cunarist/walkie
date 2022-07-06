@@ -3,8 +3,6 @@ using Rhino;
 using Rhino.Display;
 using Rhino.DocObjects;
 using System;
-using System.Drawing;
-using System.IO;
 
 namespace RhinoWASD
 {
