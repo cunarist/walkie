@@ -1,6 +1,6 @@
 # About
 
-A plugin for Rhinoceros that serves game-like walk navigation and mouse navigation improvements. Only Supports Windows.
+A plugin for Rhinoceros with game-like walk navigation and mouse navigation improvements
 
 # Links
 
@@ -10,5 +10,6 @@ A plugin for Rhinoceros that serves game-like walk navigation and mouse navigati
 
 # Installation
 
+- This plugin only supports Windows.
 - Download it from Rhino's package manager with command `PackageManager`.
 - Altenatively you can also download it from the installer link above.
