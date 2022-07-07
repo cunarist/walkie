@@ -1,5 +1,6 @@
 ﻿using Rhino;
 using Rhino.Display;
+using Rhino.UI;
 using System;
 using System.Drawing;
 
@@ -14,7 +15,6 @@ namespace Display
         private static bool IsActive = false;
         private const int paddingLeftRight = 14;
         private const int paddingTopBottom = 6;
-        private const int fontSize = 24;
 
         private static Size messageSize = Size.Empty;
         private static string message;
@@ -58,7 +58,8 @@ namespace Display
             {
                 screenSize = args.Viewport.Bounds.Size;
 
-                Font font = new Font(SystemFonts.DefaultFont.FontFamily, fontSize, GraphicsUnit.Pixel);
+                Font normalFont = Fonts.NormalFont;
+                Font font = new Font(normalFont.FontFamily, (float)(normalFont.Size * 0.5), GraphicsUnit.Millimeter);
                 CalculateString(message, ref font);
                 DrawMessageBitmap(font);
             }
