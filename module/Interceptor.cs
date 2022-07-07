@@ -190,11 +190,9 @@ namespace RhinoWASD
                 loc += Vector3d.CrossProduct(dir, up) * finalSpeed;
 
             vp.SetCameraLocation(loc, false);
-            if (!vp.IsVisible(vp.CameraTarget))
-            {
-                Point3d newTarget = vp.CameraLocation + vp.CameraDirection * 10000;
-                vp.SetCameraTarget(newTarget, false);
-            }
+
+            Point3d newTarget = vp.CameraLocation + vp.CameraDirection * LastTargetDistance;
+            vp.SetCameraTarget(newTarget, false);
 
             RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
         }
