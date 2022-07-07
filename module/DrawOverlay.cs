@@ -9,10 +9,10 @@ namespace Display
     public static class Overlay
     {
         private static Size screenSize = Size.Empty;
+        public static bool isImageOverlayed = false;
 
         #region MessageOverlay
         public static bool MessageVisible = false;
-        private static bool IsActive = false;
         private static float scaleFactor = 1;
         private const int paddingLeftRight = 14;
         private const int paddingTopBottom = 6;
@@ -37,13 +37,7 @@ namespace Display
             screenSize = Size.Empty;
             messageSize = Size.Empty;
 
-            // add eventhandler only if necessary
-            if (!IsActive)
-            {
-                IsActive = true;
-                ShowImage(null);
-                DisplayPipeline.DrawOverlay += OnDrawMessageOverlay;
-            }
+            DisplayPipeline.DrawOverlay += OnDrawMessageOverlay;
 
             // show message immediately (REDRAW)
             RhinoDoc.ActiveDoc.Views.Redraw();
@@ -60,6 +54,9 @@ namespace Display
             if (args.Display.Viewport.Id != RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewportID)
                 return;
 
+            if (isImageOverlayed)
+                return;
+
             if (screenSize != args.Viewport.Bounds.Size)
             {
                 screenSize = args.Viewport.Bounds.Size;
@@ -73,7 +70,6 @@ namespace Display
             if (DateTime.Now >= showMessageUntil)
             {
                 DisplayPipeline.DrawOverlay -= OnDrawMessageOverlay;
-                IsActive = false;
                 screenSize = Size.Empty;
                 return;
             }
@@ -164,14 +160,16 @@ namespace Display
             if (displayImage != null)
             {
                 screenSize = Size.Empty;
-                showMessageUntil = DateTime.Now;
                 DisplayPipeline.DrawOverlay += OnDrawImageOverlay;
+                isImageOverlayed = true;
             }
             else
             {
                 DisplayPipeline.DrawOverlay -= OnDrawImageOverlay;
                 screenSize = Size.Empty;
+                isImageOverlayed = false;
             }
+
             RhinoDoc.ActiveDoc.Views.Redraw();
         }
 
