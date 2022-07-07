@@ -15,5 +15,5 @@ A game-like walk navigation plugin for Rhinoceros. Only Supports Windows.
 
 # Usage
 
-Use the command `WASD`. Also, it is strongly recommended to make middle mouse button activate the macro `WASD` in Rhino options.
+Click the middle mouse button to start walking.
 ![](./resource/help.png)
