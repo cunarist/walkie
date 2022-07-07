@@ -93,14 +93,15 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>Copy "$(TargetPath)" "$(TargetDir)$(ProjectName).rhp"
-Erase "$(TargetPath)"
-PowerShell -Command "if(Test-Path '$(TargetDir)$(ProjectName).rhi'){ Remove-Item '$(TargetDir)$(ProjectName).rhi' }; if(Test-Path '$(TargetDir)Archive.zip'){ Remove-Item '$(TargetDir)Archive.zip' }; Compress-Archive '$(TargetDir)*' '$(TargetDir)Archive.zip';  Rename-Item '$(TargetDir)\Archive.zip' '$(TargetDir)\$(ProjectName).rhi'"
+    <PostBuildEvent>copy "$(TargetPath)" "$(TargetDir)$(ProjectName).rhp"
+erase "$(TargetPath)"
+powershell -Command "if(Test-Path '$(TargetDir)$(ProjectName).rhi'){ Remove-Item '$(TargetDir)$(ProjectName).rhi' }; if(Test-Path '$(TargetDir)Archive.zip'){ Remove-Item '$(TargetDir)Archive.zip' }; Compress-Archive '$(TargetDir)*' '$(TargetDir)Archive.zip';  Rename-Item '$(TargetDir)\Archive.zip' '$(TargetDir)\$(ProjectName).rhi'"
 
-Copy "..\..\offer\manifest.yml" ".\manifest.yml" /Y
-Copy "..\..\resource\icon.png" ".\icon.png" /Y
+copy "..\..\offer\manifest.yml" ".\manifest.yml" /Y
+copy "..\..\resource\icon.png" ".\icon.png" /Y
 "C:\Program Files\Rhino 7\System\Yak.exe" build
-</PostBuildEvent>
+
+if "$(ConfigurationName)"=="Debug" "C:\Program Files\McNeel\Rhino Installer Engine\x64\rhiexec.exe" "$(TargetDir)$(ProjectName).rhi" /silent</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <FallbackCulture>en-US</FallbackCulture>
