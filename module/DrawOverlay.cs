@@ -23,6 +23,7 @@ namespace Display
         private const int paddingTopBottom = 6;
 
         public static void ShowMessage(string text) { ShowMessage(text, 2000); }
+
         public static void ShowMessage(string text, int durationMS)
         {
             if (string.IsNullOrEmpty(text) || durationMS <= 0)
@@ -176,7 +177,6 @@ namespace Display
             RhinoDoc.ActiveDoc.Views.Redraw();
         }
 
-        private static Size img = new Size(1000, 400);
         private static void OnDrawImageOverlay(object sender, DrawEventArgs args)
         {
             if (args.Display.Viewport.Id != RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewportID || displayImage == null)
@@ -221,6 +221,7 @@ namespace Display
 
             return new DisplayBitmap(bmp);
         }
+
         #endregion
     }
 }
