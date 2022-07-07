@@ -13,6 +13,7 @@ namespace Display
         #region MessageOverlay
         public static bool MessageVisible = false;
         private static bool IsActive = false;
+        private static float scaleFactor = 1;
         private const int paddingLeftRight = 14;
         private const int paddingTopBottom = 6;
 
@@ -25,6 +26,11 @@ namespace Display
         {
             if (string.IsNullOrEmpty(text) || durationMS <= 0)
                 return;
+
+            using (Graphics graphics = Graphics.FromHwnd(IntPtr.Zero))
+            {
+                scaleFactor = Math.Max(graphics.DpiX, graphics.DpiY) / 96;
+            }
 
             message = text;
             showMessageUntil = DateTime.Now.AddMilliseconds(durationMS);
@@ -93,15 +99,11 @@ namespace Display
             g.Clear(Color.Transparent);
 
             // Draw BOX
-            int rad = Math.Min(paddingLeftRight, paddingTopBottom);
+            int rad = (int)(Math.Min(paddingLeftRight, paddingTopBottom) * scaleFactor);
             int diam = rad * 2;
 
             Brush brush = new SolidBrush(Color.FromArgb(191, 0, 0, 0));
-            Rectangle box = new Rectangle(
-              paddingLeftRight,
-              paddingTopBottom,
-              messageSize.Width - 2 * paddingLeftRight,
-              messageSize.Height - 2 * paddingTopBottom);
+            Rectangle box = new Rectangle(rad, rad, messageSize.Width - 2 * rad, messageSize.Height - 2 * rad);
 
             g.FillRectangle(brush, box);
 
@@ -133,13 +135,17 @@ namespace Display
                 using (var g = Graphics.FromImage(image))
                 {
                     Size s = Size.Round(g.MeasureString(text, font));
-                    while (s.Width + paddingLeftRight * 2 > screenSize.Width * 0.8 || s.Height + paddingTopBottom * 2 > screenSize.Height * 0.5)
+
+                    int messageWidth = s.Width + (int)(paddingLeftRight * scaleFactor) * 2;
+                    int messageHeight = s.Height + (int)(paddingTopBottom * scaleFactor) * 2;
+
+                    while (messageWidth > screenSize.Width * 0.8 || messageHeight > screenSize.Height * 0.5)
                     {
                         font = new Font(font.FontFamily, font.Size - 0.5f, font.Style, font.Unit, font.GdiCharSet, font.GdiVerticalFont);
                         s = Size.Round(g.MeasureString(text, font));
                     }
 
-                    messageSize = new Size(s.Width + paddingLeftRight * 2, s.Height + paddingTopBottom * 2);
+                    messageSize = new Size(messageWidth, messageHeight);
                 }
             }
         }
