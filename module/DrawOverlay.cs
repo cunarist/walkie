@@ -9,17 +9,18 @@ namespace Display
     public static class Overlay
     {
         private static Size screenSize = Size.Empty;
-        public static bool isImageOverlayed = false;
+        public static bool isMessageShown = false;
+        public static bool isImageShown = false;
 
         #region MessageOverlay
-        public static bool MessageVisible = false;
+
+        private static string message;
+        private static Size messageSize = Size.Empty;
+        private static DateTime showMessageUntil;
+
         private static float scaleFactor = 1;
         private const int paddingLeftRight = 14;
         private const int paddingTopBottom = 6;
-
-        private static Size messageSize = Size.Empty;
-        private static string message;
-        private static DateTime showMessageUntil;
 
         public static void ShowMessage(string text) { ShowMessage(text, 2000); }
         public static void ShowMessage(string text, int durationMS)
@@ -38,6 +39,7 @@ namespace Display
             messageSize = Size.Empty;
 
             DisplayPipeline.DrawOverlay += OnDrawMessageOverlay;
+            isMessageShown = true;
 
             // show message immediately (REDRAW)
             RhinoDoc.ActiveDoc.Views.Redraw();
@@ -54,7 +56,7 @@ namespace Display
             if (args.Display.Viewport.Id != RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewportID)
                 return;
 
-            if (isImageOverlayed)
+            if (isImageShown)
                 return;
 
             if (screenSize != args.Viewport.Bounds.Size)
@@ -67,8 +69,9 @@ namespace Display
                 DrawMessageBitmap(font);
             }
 
-            if (DateTime.Now >= showMessageUntil)
+            if (DateTime.Now >= showMessageUntil && isMessageShown)
             {
+                isMessageShown = false;
                 DisplayPipeline.DrawOverlay -= OnDrawMessageOverlay;
                 screenSize = Size.Empty;
                 return;
@@ -149,7 +152,7 @@ namespace Display
         #endregion
 
         #region ImageOverlay
-        public static bool ImageVisible { get { return displayImage != null; } }
+
         private static Image displayImage = null;
         private static DisplayBitmap bitmap = null;
 
@@ -161,13 +164,13 @@ namespace Display
             {
                 screenSize = Size.Empty;
                 DisplayPipeline.DrawOverlay += OnDrawImageOverlay;
-                isImageOverlayed = true;
+                isImageShown = true;
             }
             else
             {
                 DisplayPipeline.DrawOverlay -= OnDrawImageOverlay;
                 screenSize = Size.Empty;
-                isImageOverlayed = false;
+                isImageShown = false;
             }
 
             RhinoDoc.ActiveDoc.Views.Redraw();
