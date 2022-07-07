@@ -1,6 +1,6 @@
 ---
 name: Walkie
-version: 2.0
+version: 2.1
 authors:
   - Cunarist
 description: A game-like walk navigation plugin for Rhinoceros. Only Supports Windows.
