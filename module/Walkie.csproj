@@ -93,15 +93,24 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "$(TargetDir)$(ProjectName).rhp"
-erase "$(TargetPath)"
-powershell -Command "if(Test-Path '$(TargetDir)$(ProjectName).rhi'){ Remove-Item '$(TargetDir)$(ProjectName).rhi' }; if(Test-Path '$(TargetDir)Archive.zip'){ Remove-Item '$(TargetDir)Archive.zip' }; Compress-Archive '$(TargetDir)*' '$(TargetDir)Archive.zip';  Rename-Item '$(TargetDir)\Archive.zip' '$(TargetDir)\$(ProjectName).rhi'"
+    <PostBuildEvent>cd "$(TargetDir)"
 
-copy "..\..\offer\manifest.yml" ".\manifest.yml" /Y
-copy "..\..\resource\icon.png" ".\icon.png" /Y
-"C:\Program Files\Rhino 7\System\Yak.exe" build
+if exist "$(ProjectName).rhp" del "$(ProjectName).rhp"
+rename "$(ProjectName).dll" "$(ProjectName).rhp"
 
-if "$(ConfigurationName)"=="Debug" "C:\Program Files\McNeel\Rhino Installer Engine\x64\rhiexec.exe" "$(TargetDir)$(ProjectName).rhi" /silent</PostBuildEvent>
+copy "$(SolutionDir)offer\manifest.yml" "$(TargetDir)manifest.yml" /Y
+copy "$(SolutionDir)resource\icon.png" "$(TargetDir)icon.png" /Y
+if "$(ConfigurationName)"=="Release" "C:\Program Files\Rhino 7\System\Yak.exe" build
+for /r "$(TargetDir)" %25%25x in (*.yak) do move "%25%25x" "$(TargetDir)..\"
+
+cd "$(TargetDir)..\"
+
+powershell -Command "Compress-Archive -F '$(TargetDir)*' '$(ProjectName).zip'"
+if exist "$(ProjectName).rhi" erase "$(ProjectName).rhi"
+rename "$(ProjectName).zip" "$(ProjectName).rhi"
+
+set executor=C:\Program Files\McNeel\Rhino Installer Engine\x64\rhiexec.exe
+if "$(ConfigurationName)"=="Debug" "%25executor%25" "$(ProjectName).rhi" /silent</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <FallbackCulture>en-US</FallbackCulture>
