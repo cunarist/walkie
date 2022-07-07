@@ -9,6 +9,7 @@ namespace RhinoWASD
 {
     public class PlugIn : Rhino.PlugIns.PlugIn
     {
+        public override PlugInLoadTime LoadTime => PlugInLoadTime.AtStartup;
 
         private static Timer timer;
         private static System.Drawing.Point cursorPosition = Cursor.Position;
