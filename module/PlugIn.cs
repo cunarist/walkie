@@ -40,10 +40,12 @@ namespace RhinoWASD
 
         private static void DetectMouseMove(object sender, EventArgs args)
         {
+            RhinoView view = Rhino.RhinoDoc.ActiveDoc.Views.ActiveView;
+            if (view == null)
+                return;
             System.Drawing.Point newPosition = Cursor.Position;
             if (newPosition.X != cursorPosition.X || newPosition.Y != cursorPosition.Y)
             {
-                RhinoView view = Rhino.RhinoDoc.ActiveDoc.Views.ActiveView;
                 int viewWidth = view.ActiveViewport.Size.Width;
                 int viewHeight = view.ActiveViewport.Size.Height;
                 System.Drawing.Point cursorInView = view.ActiveViewport.ScreenToClient(newPosition);
