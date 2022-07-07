@@ -62,7 +62,7 @@ namespace Display
                 screenSize = args.Viewport.Bounds.Size;
 
                 Font normalFont = Fonts.NormalFont;
-                Font font = new Font(normalFont.FontFamily, (float)(normalFont.Size * 0.5), GraphicsUnit.Millimeter);
+                Font font = new Font(normalFont.FontFamily, 4, GraphicsUnit.Millimeter);
                 CalculateString(message, ref font);
                 DrawMessageBitmap(font);
             }
