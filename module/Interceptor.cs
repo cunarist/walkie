@@ -81,15 +81,12 @@ namespace RhinoWASD
             //Save Mouse Position & set cursor to primaryscreen center
             ShowCursor(false);
             CursorPositionBuffer = new System.Drawing.Point(Cursor.Position.X, Cursor.Position.Y);
-            LastTargetDistance =
-                RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport.CameraLocation.DistanceTo(
-                    RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport.CameraTarget
-                );
+            RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
+            LastTargetDistance = vp.CameraLocation.DistanceTo(vp.CameraTarget);
 
             ScreenRect = Screen.PrimaryScreen.Bounds;
             Cursor.Position = MidPoint;
 
-            RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
             speed = Properties.Settings.Default.Speed;
             BeforeLocation = vp.CameraLocation;
             BeforeDirection = new Vector3d(vp.CameraDirection);

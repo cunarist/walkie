@@ -44,7 +44,8 @@ namespace RhinoWASD
             if (!string.IsNullOrEmpty(CurrentNamedView))
             {
                 cur = RhinoDoc.ActiveDoc.NamedViews.FindByName(CurrentNamedView);
-                if (cur >= 0 && cur < count && IsNamedView(RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport, RhinoDoc.ActiveDoc.NamedViews[cur].Viewport))
+                RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
+                if (cur >= 0 && cur < count && IsNamedView(vp, RhinoDoc.ActiveDoc.NamedViews[cur].Viewport))
                     cur--;
 
             }
@@ -61,7 +62,8 @@ namespace RhinoWASD
             if (!string.IsNullOrEmpty(CurrentNamedView))
             {
                 cur = RhinoDoc.ActiveDoc.NamedViews.FindByName(CurrentNamedView);
-                if (cur >= 0 && cur < count && IsNamedView(RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport, RhinoDoc.ActiveDoc.NamedViews[cur].Viewport))
+                RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
+                if (cur >= 0 && cur < count && IsNamedView(vp, RhinoDoc.ActiveDoc.NamedViews[cur].Viewport))
                     cur++;
 
             }
