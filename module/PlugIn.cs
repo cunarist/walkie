@@ -48,13 +48,13 @@ namespace RhinoWASD
             if (Rhino.RhinoDoc.ActiveDoc.Views.ActiveView == null)
                 return;
 
-            RhinoView view = Rhino.RhinoDoc.ActiveDoc.Views.ActiveView;
+            RhinoViewport vp = Rhino.RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
             System.Drawing.Point newPosition = Cursor.Position;
             if (newPosition.X != cursorPosition.X || newPosition.Y != cursorPosition.Y)
             {
-                int viewWidth = view.ActiveViewport.Size.Width;
-                int viewHeight = view.ActiveViewport.Size.Height;
-                System.Drawing.Point cursorInView = view.ActiveViewport.ScreenToClient(newPosition);
+                int viewWidth = vp.Size.Width;
+                int viewHeight = vp.Size.Height;
+                System.Drawing.Point cursorInView = vp.ScreenToClient(newPosition);
                 int cursorX = cursorInView.X;
                 int cursorY = cursorInView.Y;
                 if (0 < cursorX && cursorX < viewWidth && 0 < cursorY && cursorY < viewHeight)
@@ -65,12 +65,10 @@ namespace RhinoWASD
 
         private static void HandleMouseMove()
         {
-            RhinoView view = Rhino.RhinoDoc.ActiveDoc.Views.ActiveView;
-            if (view == null)
-                return;
-            System.Drawing.Point cursorInView = view.ActiveViewport.ScreenToClient(Cursor.Position);
-            Point3d cameraLocation = view.ActiveViewport.CameraLocation;
-            Line viewLine = view.ActiveViewport.ClientToWorld(cursorInView);
+            RhinoViewport vp = Rhino.RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
+            System.Drawing.Point cursorInView = vp.ScreenToClient(Cursor.Position);
+            Point3d cameraLocation = vp.CameraLocation;
+            Line viewLine = vp.ClientToWorld(cursorInView);
             viewLine.Extend(1E8, 0);
             Point3d zoomTarget = viewLine.From;
             bool didSetTarget = false;
@@ -96,7 +94,7 @@ namespace RhinoWASD
             }
             if (didSetTarget)
             {
-                view.ActiveViewport.SetCameraTarget(zoomTarget, false);
+                vp.SetCameraTarget(zoomTarget, false);
             }
         }
     }
