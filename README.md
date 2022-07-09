@@ -4,7 +4,7 @@ A plugin for Rhinoceros with game-like walk navigation and mouse navigation impr
 
 # Links
 
-- Video: https://youtu.be/WBIxDFxskGQ
+- Video: https://youtu.be/Ie_VuRJS11k
 - Installer: https://www.food4rhino.com/en/app/walkie
 - Source code: https://github.com/cunarist/walkie
 
