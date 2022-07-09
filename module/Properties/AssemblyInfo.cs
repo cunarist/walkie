@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 #endif
 
 [assembly: AssemblyTitle("Walkie")]
-[assembly: AssemblyDescription("Game-like navigation for Rhinoceros")]
+[assembly: AssemblyDescription("A plugin for Rhinoceros with game-like walk mode and mouse navigation improvements")]
 [assembly: AssemblyCompany("Cunarist")]
 [assembly: AssemblyProduct("Walkie")]
 [assembly: AssemblyCopyright("© 2022 Cunarist")]
