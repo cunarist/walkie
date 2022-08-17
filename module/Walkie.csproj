@@ -82,7 +82,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="..\resource\help.png" />
+    <None Include="..\static\help.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -99,7 +99,7 @@ if exist "$(ProjectName).rhp" del "$(ProjectName).rhp"
 rename "$(ProjectName).dll" "$(ProjectName).rhp"
 
 copy "$(SolutionDir)deliver\manifest.yml" "$(TargetDir)manifest.yml" /Y
-copy "$(SolutionDir)resource\product_icon_walkie.png" "$(TargetDir)product_icon_walkie.png" /Y
+copy "$(SolutionDir)static\product_icon_walkie.png" "$(TargetDir)product_icon_walkie.png" /Y
 if "$(ConfigurationName)"=="Release" "C:\Program Files\Rhino 7\System\Yak.exe" build
 for /r "$(TargetDir)" %25%25x in (*.yak) do move "%25%25x" "$(TargetDir)..\"
 
