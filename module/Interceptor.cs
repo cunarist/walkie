@@ -132,7 +132,7 @@ namespace RhinoWASD
             if (!double.IsNaN(LastTargetDistance))
             {
                 Point3d newTarget = vp.CameraLocation + vp.CameraDirection * LastTargetDistance;
-                vp.SetCameraTarget(newTarget, false);
+                PlugIn.desiredCameraTarget = newTarget;
             }
             LastTargetDistance = double.NaN;
 
@@ -189,7 +189,7 @@ namespace RhinoWASD
             vp.SetCameraLocation(loc, false);
 
             Point3d newTarget = vp.CameraLocation + vp.CameraDirection * LastTargetDistance;
-            vp.SetCameraTarget(newTarget, false);
+            PlugIn.desiredCameraTarget = newTarget;
 
             RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
         }

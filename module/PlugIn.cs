@@ -14,7 +14,7 @@ namespace RhinoWASD
         private static Timer timer;
 
         private static System.Drawing.Point lastCursorPosition = Cursor.Position;
-        private static Point3d desiredCameraTarget = new Point3d(0, 0, 0);
+        public static Point3d desiredCameraTarget = new Point3d(0, 0, 0);
 
         public PlugIn() { Instance = this; }
 
@@ -63,6 +63,7 @@ namespace RhinoWASD
                 int cursorY = cursorInView.Y;
                 if (0 < cursorX && cursorX < viewWidth && 0 < cursorY && cursorY < viewHeight)
                     shouldHandle = true;
+                System.Diagnostics.Debug.WriteLine("Cursor moved");
             }
             lastCursorPosition = newCursorPosition;
 
