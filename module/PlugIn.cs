@@ -63,7 +63,6 @@ namespace RhinoWASD
                 int cursorY = cursorInView.Y;
                 if (0 < cursorX && cursorX < viewWidth && 0 < cursorY && cursorY < viewHeight)
                     shouldHandle = true;
-                System.Diagnostics.Debug.WriteLine("Cursor moved");
             }
             lastCursorPosition = newCursorPosition;
 
