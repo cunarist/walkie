@@ -12,7 +12,9 @@ namespace RhinoWASD
         public override PlugInLoadTime LoadTime => PlugInLoadTime.AtStartup;
 
         private static Timer timer;
-        private static System.Drawing.Point cursorPosition = Cursor.Position;
+
+        private static System.Drawing.Point lastCursorPosition = Cursor.Position;
+        private static Point3d desiredCameraTarget = new Point3d(0, 0, 0);
 
         public PlugIn() { Instance = this; }
 
@@ -22,7 +24,7 @@ namespace RhinoWASD
         {
             timer = new Timer();
             timer.Interval = 1;
-            timer.Tick += DetectMouseMove;
+            timer.Tick += DetectUnofficialEvents;
             timer.Start();
 
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMode = (Rhino.ApplicationSettings.MiddleMouseMode)2;
@@ -34,12 +36,12 @@ namespace RhinoWASD
         protected override void OnShutdown()
         {
             timer.Stop();
-            timer.Tick -= DetectMouseMove;
+            timer.Tick -= DetectUnofficialEvents;
             timer.Dispose();
             timer = null;
         }
 
-        private static void DetectMouseMove(object sender, EventArgs args)
+        private static void DetectUnofficialEvents(object sender, EventArgs args)
         {
             if (Rhino.RhinoDoc.ActiveDoc == null)
                 return;
@@ -48,22 +50,35 @@ namespace RhinoWASD
             if (Rhino.RhinoDoc.ActiveDoc.Views.ActiveView == null)
                 return;
 
+            bool shouldHandle = false;
             RhinoViewport vp = Rhino.RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
-            System.Drawing.Point newPosition = Cursor.Position;
-            if (newPosition.X != cursorPosition.X || newPosition.Y != cursorPosition.Y)
+
+            System.Drawing.Point newCursorPosition = Cursor.Position;
+            if (!(newCursorPosition.Equals(lastCursorPosition)))
             {
                 int viewWidth = vp.Size.Width;
                 int viewHeight = vp.Size.Height;
-                System.Drawing.Point cursorInView = vp.ScreenToClient(newPosition);
+                System.Drawing.Point cursorInView = vp.ScreenToClient(newCursorPosition);
                 int cursorX = cursorInView.X;
                 int cursorY = cursorInView.Y;
                 if (0 < cursorX && cursorX < viewWidth && 0 < cursorY && cursorY < viewHeight)
-                    HandleMouseMove();
+                    shouldHandle = true;
             }
-            cursorPosition = newPosition;
+            lastCursorPosition = newCursorPosition;
+
+            Point3d newCameraTarget = vp.CameraTarget;
+            if (!(newCameraTarget.Equals(desiredCameraTarget)))
+            {
+                shouldHandle = true;
+            }
+
+            if (shouldHandle)
+            {
+                SetCameraTarget();
+            }
         }
 
-        private static void HandleMouseMove()
+        private static void SetCameraTarget()
         {
             RhinoViewport vp = Rhino.RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
             System.Drawing.Point cursorInView = vp.ScreenToClient(Cursor.Position);
@@ -95,6 +110,7 @@ namespace RhinoWASD
             if (didSetTarget)
             {
                 vp.SetCameraTarget(zoomTarget, false);
+                desiredCameraTarget = zoomTarget;
             }
         }
     }
