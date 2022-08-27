@@ -32,10 +32,9 @@ namespace RhinoWASD
         private static Timer timer;
         private static Point3d BeforeLocation;
         private static Vector3d BeforeDirection;
-        private static double speed = Properties.Settings.Default.Speed;
+        private static double speed = 1;
         private static System.Drawing.Point CursorPositionBuffer = System.Drawing.Point.Empty;
         private static System.Drawing.Point LastPos = System.Drawing.Point.Empty;
-        private static double LastTargetDistance = double.NaN;
         private static System.Drawing.Rectangle ScreenRect;
 
         private static System.Drawing.Point MidPoint
@@ -82,12 +81,11 @@ namespace RhinoWASD
             ShowCursor(false);
             CursorPositionBuffer = new System.Drawing.Point(Cursor.Position.X, Cursor.Position.Y);
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
-            LastTargetDistance = vp.CameraLocation.DistanceTo(vp.CameraTarget);
+            speed = vp.CameraLocation.DistanceTo(vp.CameraTarget) / 100;
 
             ScreenRect = Screen.PrimaryScreen.Bounds;
             Cursor.Position = MidPoint;
 
-            speed = Properties.Settings.Default.Speed;
             BeforeLocation = vp.CameraLocation;
             BeforeDirection = new Vector3d(vp.CameraDirection);
 
@@ -129,12 +127,9 @@ namespace RhinoWASD
             UnhookWindowsHookEx(_kHook);
             UnhookWindowsHookEx(_mHook);
 
-            if (!double.IsNaN(LastTargetDistance))
-            {
-                Point3d newTarget = vp.CameraLocation + vp.CameraDirection * LastTargetDistance;
-                PlugIn.desiredCameraTarget = newTarget;
-            }
-            LastTargetDistance = double.NaN;
+            Point3d newTarget = vp.CameraLocation + vp.CameraDirection * (speed * 100);
+            PlugIn.desiredCameraTarget = newTarget;
+            RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
 
             Cursor.Position = CursorPositionBuffer;
             ShowCursor(true);
@@ -188,9 +183,8 @@ namespace RhinoWASD
 
             vp.SetCameraLocation(loc, false);
 
-            Point3d newTarget = vp.CameraLocation + vp.CameraDirection * LastTargetDistance;
+            Point3d newTarget = vp.CameraLocation + vp.CameraDirection * (speed * 100);
             PlugIn.desiredCameraTarget = newTarget;
-
             RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
         }
 
@@ -207,6 +201,7 @@ namespace RhinoWASD
 
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
+
             if (nCode < 0)
                 return CallNextHookEx((IntPtr)0, nCode, wParam, lParam);
 
@@ -259,11 +254,12 @@ namespace RhinoWASD
             else if (wParam == (IntPtr)WM_MOUSEMOVE)
             {
                 NativeMethods.MSLLHOOKSTRUCT data = NativeMethods.GetData((IntPtr)lParam);
-                Rhino.Display.RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
                 MouseOffset = new System.Drawing.Point(data.pt.x - MidPoint.X, data.pt.y - MidPoint.Y);
             }
             else if (wParam == (IntPtr)WM_MOUSEWHEEL)
             {
+                Rhino.Display.RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
+
                 int delta = NativeMethods.GetDelta(lParam) / 120;
                 if (speed < 0.01)
                     speed = 0.01;
@@ -273,9 +269,11 @@ namespace RhinoWASD
                     speed *= 0.8;
                 else if (delta > 0 && speed * 1.25 < 1000000)
                     speed *= 1.25;
-                Properties.Settings.Default.Speed = speed;
-                Properties.Settings.Default.Save();
                 ShowSpeedMessage();
+
+                Point3d newTarget = vp.CameraLocation + vp.CameraDirection * (speed * 100);
+                PlugIn.desiredCameraTarget = newTarget;
+                RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
             }
             else if ((int)wParam >= WM_LBUTTONDOWN && (int)wParam <= WM_RBUTTONUP)
             {
@@ -283,7 +281,6 @@ namespace RhinoWASD
             }
             else
                 return CallNextHookEx((IntPtr)0, nCode, wParam, lParam);
-
 
             return new IntPtr(-1);
         }
