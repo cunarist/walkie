@@ -3,7 +3,7 @@ name: Walkie
 version: 3.0
 authors:
   - Cunarist
-description: A plugin for Rhinoceros with game-like walk mode and mouse navigation improvements
+description: A plugin for Rhinoceros with game-like walk mode and cursor zoom depth
 url: https://cunarist.com/walkie
 icon: product_icon_walkie.png
 keywords:
