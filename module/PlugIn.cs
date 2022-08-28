@@ -27,7 +27,7 @@ namespace RhinoWASD
             timer.Tick += DetectUnofficialEvents;
             timer.Start();
 
-            Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMode = (Rhino.ApplicationSettings.MiddleMouseMode)2;
+            Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMode = Rhino.ApplicationSettings.MiddleMouseMode.RunMacro;
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMacro = "WASD";
 
             return LoadReturnCode.Success;
@@ -62,6 +62,7 @@ namespace RhinoWASD
                 int cursorY = cursorInView.Y;
                 if (0 < cursorX && cursorX < viewWidth && 0 < cursorY && cursorY < viewHeight)
                 {
+                    bool didSetTarget = false;
                     System.Drawing.Point cursorPositionInView = vp.ScreenToClient(Cursor.Position);
                     Point3d cameraLocation = vp.CameraLocation;
                     Line viewLine = vp.ClientToWorld(cursorPositionInView);
@@ -82,11 +83,15 @@ namespace RhinoWASD
                                 if (newDistance < beforeDistance)
                                 {
                                     nextCameraTaraget = pinPoint;
+                                    didSetTarget = true;
                                 }
                             }
                         }
                     }
-                    desiredCameraTarget = nextCameraTaraget;
+                    if (didSetTarget)
+                    {
+                        desiredCameraTarget = nextCameraTaraget;
+                    }
                 }
             }
             lastCursorPosition = currentCursorPosition;
