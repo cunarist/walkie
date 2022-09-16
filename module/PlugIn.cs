@@ -15,6 +15,7 @@ namespace RhinoWASD
 
         private static System.Drawing.Point lastCursorPosition = Cursor.Position;
         public static Point3d desiredCameraTarget = new Point3d(0, 0, 0);
+        private static Boolean isWorkingOnCameraTarget = false;
 
         public PlugIn() { Instance = this; }
 
@@ -60,8 +61,15 @@ namespace RhinoWASD
                 System.Drawing.Point cursorInView = vp.ScreenToClient(currentCursorPosition);
                 int cursorX = cursorInView.X;
                 int cursorY = cursorInView.Y;
-                if (0 < cursorX && cursorX < viewWidth && 0 < cursorY && cursorY < viewHeight)
+                if (0 < cursorX && cursorX < viewWidth && 0 < cursorY && cursorY < viewHeight && !isWorkingOnCameraTarget)
                 {
+                    isWorkingOnCameraTarget = true;
+                    System.Threading.Timer releaseTimer = null;
+                    releaseTimer = new System.Threading.Timer((obj) =>
+                    {
+                        isWorkingOnCameraTarget = false;
+                        releaseTimer.Dispose();
+                    }, null, 1000, System.Threading.Timeout.Infinite);
                     bool didSetTarget = false;
                     System.Drawing.Point cursorPositionInView = vp.ScreenToClient(Cursor.Position);
                     Point3d cameraLocation = vp.CameraLocation;
@@ -92,6 +100,8 @@ namespace RhinoWASD
                     {
                         desiredCameraTarget = nextCameraTaraget;
                     }
+                    isWorkingOnCameraTarget = false;
+                    releaseTimer.Dispose();
                 }
             }
             lastCursorPosition = currentCursorPosition;
