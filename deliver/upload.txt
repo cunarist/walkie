@@ -1,6 +1,6 @@
 cd "..\distribution"
 "C:\Program Files\Rhino 7\System\Yak.exe" login
-"C:\Program Files\Rhino 7\System\Yak.exe" push walkie-3.1.0-rh7_21-any.yak
+"C:\Program Files\Rhino 7\System\Yak.exe" push walkie-3.2.0-rh7_21-any.yak
 "C:\Program Files\Rhino 7\System\Yak.exe" search --all walkie
 "C:\Program Files\Rhino 7\System\Yak.exe" yank walkie 2.7.0
 pause
