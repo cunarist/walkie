@@ -40,16 +40,16 @@ namespace RhinoWASD
             if (count < 1)
                 return;
 
-            int cur = RhinoDoc.ActiveDoc.NamedViews.Count - 1;
             if (!string.IsNullOrEmpty(CurrentNamedView))
             {
-                cur = RhinoDoc.ActiveDoc.NamedViews.FindByName(CurrentNamedView);
+                int cur = RhinoDoc.ActiveDoc.NamedViews.FindByName(CurrentNamedView);
+                int newCur = cur - 1;
                 RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
-                if (cur >= 0 && cur < count && IsNamedView(vp, RhinoDoc.ActiveDoc.NamedViews[cur].Viewport))
-                    cur--;
-
+                if (newCur >= 0 && newCur < count)
+                {
+                    RestoreNamedView(newCur);
+                }
             }
-            RestoreNamedView(cur);
         }
 
         public static void NextNamedView()
@@ -58,16 +58,16 @@ namespace RhinoWASD
             if (count < 1)
                 return;
 
-            int cur = 0;
             if (!string.IsNullOrEmpty(CurrentNamedView))
             {
-                cur = RhinoDoc.ActiveDoc.NamedViews.FindByName(CurrentNamedView);
+                int cur = RhinoDoc.ActiveDoc.NamedViews.FindByName(CurrentNamedView);
+                int newCur = cur + 1;
                 RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
-                if (cur >= 0 && cur < count && IsNamedView(vp, RhinoDoc.ActiveDoc.NamedViews[cur].Viewport))
-                    cur++;
-
+                if (newCur >= 0 && newCur < count)
+                {
+                    RestoreNamedView(newCur);
+                }
             }
-            RestoreNamedView(cur);
         }
 
         public static void SaveNamedView()

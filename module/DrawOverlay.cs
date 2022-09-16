@@ -141,7 +141,6 @@ namespace Display
 
                     while (messageWidth > screenSize.Width * 0.8 || messageHeight > screenSize.Height * 0.5)
                     {
-                        font = new Font(font.FontFamily, font.Size - 0.5f, font.Style, font.Unit, font.GdiCharSet, font.GdiVerticalFont);
                         s = Size.Round(g.MeasureString(text, font));
                     }
 
