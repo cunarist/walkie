@@ -42,7 +42,6 @@ namespace Display
             DisplayPipeline.DrawOverlay += OnDrawMessageOverlay;
             isMessageShown = true;
 
-            // show message immediately (REDRAW)
             RhinoDoc.ActiveDoc.Views.Redraw();
         }
 
