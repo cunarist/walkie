@@ -46,11 +46,11 @@ namespace RhinoWASD
 
         private static void DetectUnofficialEvents(object sender, EventArgs args)
         {
-            if (Rhino.RhinoDoc.ActiveDoc == null) { return; }
-            if (Rhino.RhinoDoc.ActiveDoc.Views == null) { return; }
-            if (Rhino.RhinoDoc.ActiveDoc.Views.ActiveView == null) { return; }
+            if (RhinoDoc.ActiveDoc == null) { return; }
+            if (RhinoDoc.ActiveDoc.Views == null) { return; }
+            if (RhinoDoc.ActiveDoc.Views.ActiveView == null) { return; }
 
-            RhinoViewport vp = Rhino.RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
+            RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
 
             Point3d currentCameraTarget = vp.CameraTarget;
             if (!(currentCameraTarget.Equals(desiredCameraTarget)))
