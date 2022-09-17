@@ -53,12 +53,20 @@ namespace RhinoWASD
             RhinoViewport vp = Rhino.RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
 
             Point3d currentCameraTarget = vp.CameraTarget;
+            if (!(currentCameraTarget.Equals(desiredCameraTarget)))
             {
+                vp.SetCameraTarget(desiredCameraTarget, false);
+                if (!ignoreCameraTargetChange)
                 {
                     // When Rhino itself changed the camera target in a weird sense
+                    RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
+                }
                 else
                 {
+                    ignoreCameraTargetChange = false;
+                }
             }
+
             System.Drawing.Point currentCursorPosition = Cursor.Position;
             if (!(currentCursorPosition.Equals(lastCursorPosition)))
             {
