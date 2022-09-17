@@ -1,4 +1,5 @@
-﻿using Rhino.Display;
+﻿using Rhino;
+using Rhino.Display;
 using Rhino.DocObjects;
 using Rhino.Geometry;
 using Rhino.PlugIns;
@@ -14,8 +15,9 @@ namespace RhinoWASD
         private static Timer timer;
 
         private static System.Drawing.Point lastCursorPosition = Cursor.Position;
+        private static bool isWorkingOnCameraTarget = false;
+        private static bool ignoreCameraTargetChange = false;
         public static Point3d desiredCameraTarget = new Point3d(0, 0, 0);
-        private static Boolean isWorkingOnCameraTarget = false;
 
         public PlugIn() { Instance = this; }
 
@@ -44,15 +46,19 @@ namespace RhinoWASD
 
         private static void DetectUnofficialEvents(object sender, EventArgs args)
         {
-            if (Rhino.RhinoDoc.ActiveDoc == null)
-                return;
-            if (Rhino.RhinoDoc.ActiveDoc.Views == null)
-                return;
-            if (Rhino.RhinoDoc.ActiveDoc.Views.ActiveView == null)
-                return;
+            if (Rhino.RhinoDoc.ActiveDoc == null) { return; }
+            if (Rhino.RhinoDoc.ActiveDoc.Views == null) { return; }
+            if (Rhino.RhinoDoc.ActiveDoc.Views.ActiveView == null) { return; }
 
             RhinoViewport vp = Rhino.RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
 
+            Point3d currentCameraTarget = vp.CameraTarget;
+            {
+                {
+                    // When Rhino itself changed the camera target in a weird sense
+                else
+                {
+            }
             System.Drawing.Point currentCursorPosition = Cursor.Position;
             if (!(currentCursorPosition.Equals(lastCursorPosition)))
             {
@@ -76,7 +82,7 @@ namespace RhinoWASD
                     Line viewLine = vp.ClientToWorld(cursorPositionInView);
                     viewLine.Extend(1E8, 0);
                     Point3d nextCameraTaraget = viewLine.From;
-                    foreach (RhinoObject eachObject in Rhino.RhinoDoc.ActiveDoc.Objects)
+                    foreach (RhinoObject eachObject in RhinoDoc.ActiveDoc.Objects)
                     {
                         MeshType blankMesh = new MeshType();
                         Mesh[] meshes = eachObject.GetMeshes(blankMesh);
@@ -99,18 +105,13 @@ namespace RhinoWASD
                     if (didSetTarget)
                     {
                         desiredCameraTarget = nextCameraTaraget;
+                        ignoreCameraTargetChange = true;
                     }
                     isWorkingOnCameraTarget = false;
                     releaseTimer.Dispose();
                 }
             }
             lastCursorPosition = currentCursorPosition;
-
-            Point3d currentCameraTarget = vp.CameraTarget;
-            if (!(currentCameraTarget.Equals(desiredCameraTarget)))
-            {
-                vp.SetCameraTarget(desiredCameraTarget, false);
-            }
         }
     }
 }
