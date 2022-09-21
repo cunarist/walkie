@@ -16,8 +16,6 @@ namespace RhinoWASD
 
         private static System.Drawing.Point lastCursorPosition = Cursor.Position;
         private static bool isWorkingOnCameraTarget = false;
-        private static bool ignoreCameraTargetChange = false;
-        public static Point3d desiredCameraTarget = new Point3d(0, 0, 0);
 
         public PlugIn() { Instance = this; }
 
@@ -51,21 +49,6 @@ namespace RhinoWASD
             if (RhinoDoc.ActiveDoc.Views.ActiveView == null) { return; }
 
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
-
-            Point3d currentCameraTarget = vp.CameraTarget;
-            if (!(currentCameraTarget.Equals(desiredCameraTarget)))
-            {
-                vp.SetCameraTarget(desiredCameraTarget, false);
-                if (!ignoreCameraTargetChange)
-                {
-                    // When Rhino itself changed the camera target in a weird sense
-                    RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
-                }
-                else
-                {
-                    ignoreCameraTargetChange = false;
-                }
-            }
 
             System.Drawing.Point currentCursorPosition = Cursor.Position;
             if (!(currentCursorPosition.Equals(lastCursorPosition)))
@@ -112,8 +95,8 @@ namespace RhinoWASD
                     }
                     if (didSetTarget)
                     {
-                        desiredCameraTarget = nextCameraTaraget;
-                        ignoreCameraTargetChange = true;
+                        vp.SetCameraTarget(nextCameraTaraget, false);
+                        RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
                     }
                     isWorkingOnCameraTarget = false;
                     releaseTimer.Dispose();

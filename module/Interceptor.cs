@@ -128,7 +128,8 @@ namespace RhinoWASD
             UnhookWindowsHookEx(_mHook);
 
             Point3d newTarget = vp.CameraLocation + vp.CameraDirection * (speed * 100);
-            PlugIn.desiredCameraTarget = newTarget;
+            vp.SetCameraTarget(newTarget, false);
+            RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
 
             Cursor.Position = CursorPositionBuffer;
             ShowCursor(true);
@@ -183,7 +184,8 @@ namespace RhinoWASD
             vp.SetCameraLocation(loc, false);
 
             Point3d newTarget = vp.CameraLocation + vp.CameraDirection * (speed * 100);
-            PlugIn.desiredCameraTarget = newTarget;
+            vp.SetCameraTarget(newTarget, false);
+            RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
         }
 
         private static IntPtr SetHook(LowLevelProc proc, bool Keyboard)
@@ -270,7 +272,8 @@ namespace RhinoWASD
                 ShowSpeedMessage();
 
                 Point3d newTarget = vp.CameraLocation + vp.CameraDirection * (speed * 100);
-                PlugIn.desiredCameraTarget = newTarget;
+                vp.SetCameraTarget(newTarget, false);
+                RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
             }
             else if ((int)wParam >= WM_LBUTTONDOWN && (int)wParam <= WM_RBUTTONUP)
             {
