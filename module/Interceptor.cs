@@ -26,6 +26,9 @@ namespace RhinoWASD
 
         private const int TIMER_INVERVAL = 1;
         private const int MOUSE_SENSITIVITY = 8000;
+        private const double MIN_SPEED = 1E-2;
+        private const double MAX_SPEED = 1E6;
+
 
         private static LowLevelProc _proc = HookCallback;
         private static IntPtr _kHook = IntPtr.Zero, _mHook = IntPtr.Zero;
@@ -82,6 +85,8 @@ namespace RhinoWASD
             CursorPositionBuffer = new System.Drawing.Point(Cursor.Position.X, Cursor.Position.Y);
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
             speed = vp.CameraLocation.DistanceTo(vp.CameraTarget) / 100;
+            speed = Math.Max(MIN_SPEED, speed);
+            speed = Math.Min(MAX_SPEED, speed);
 
             ScreenRect = Screen.PrimaryScreen.Bounds;
             Cursor.Position = MidPoint;
@@ -261,13 +266,13 @@ namespace RhinoWASD
                 RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
 
                 int delta = NativeMethods.GetDelta(lParam) / 120;
-                if (speed < 0.01)
-                    speed = 0.01;
-                else if (speed > 1000000)
-                    speed = 1000000;
-                else if (delta < 0 && speed * 0.8 > 0.01)
+                if (speed < MIN_SPEED)
+                    speed = MIN_SPEED;
+                else if (speed > MAX_SPEED)
+                    speed = MAX_SPEED;
+                else if (delta < 0 && speed * 0.8 > MIN_SPEED)
                     speed *= 0.8;
-                else if (delta > 0 && speed * 1.25 < 1000000)
+                else if (delta > 0 && speed * 1.25 < MAX_SPEED)
                     speed *= 1.25;
                 ShowSpeedMessage();
 
