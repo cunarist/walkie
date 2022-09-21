@@ -258,7 +258,7 @@ namespace RhinoWASD
             }
             else if (wParam == (IntPtr)WM_MOUSEWHEEL)
             {
-                Rhino.Display.RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
+                RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
 
                 int delta = NativeMethods.GetDelta(lParam) / 120;
                 if (speed < 0.01)
