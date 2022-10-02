@@ -10,6 +10,6 @@ A plugin for Rhinoceros with game-like walk mode and cursor zoom depth
 
 # Installation
 
-- This plugin only supports Windows.
+- This plugin supports Rhino 7.18 or higher and is only avaliable on Windows.
 - Download it from Rhino's package manager with command `PackageManager`.
 - Altenatively you can also download it from the installer link above.
