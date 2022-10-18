@@ -119,7 +119,7 @@ namespace RhinoWASD
             {
                 setDepthEnabled = false;
                 setDepthDurationRecord = 0;
-                RhinoApp.WriteLine("This scene is too heavy. Walkie's cursor zoom depth feature is disabled.");
+                RhinoApp.WriteLine("This document is too heavy. Walkie's cursor zoom depth feature is disabled.");
             }
         }
     }
