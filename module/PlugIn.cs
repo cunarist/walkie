@@ -12,10 +12,10 @@ namespace RhinoWASD
     {
         public override PlugInLoadTime LoadTime => PlugInLoadTime.AtStartup;
 
-        private static Timer timer;
+        private static System.Threading.Timer timer;
 
         private static System.Drawing.Point lastCursorPosition = Cursor.Position;
-        private static bool isWorkingOnCameraTarget = false;
+        private static double waitUntil = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
 
         public PlugIn() { Instance = this; }
 
@@ -23,10 +23,7 @@ namespace RhinoWASD
 
         protected override LoadReturnCode OnLoad(ref string errorMessage)
         {
-            timer = new Timer();
-            timer.Interval = 1;
-            timer.Tick += DetectUnofficialEvents;
-            timer.Start();
+            timer = new System.Threading.Timer(DetectUnofficialEvents, null, 0, 10);
 
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMode = Rhino.ApplicationSettings.MiddleMouseMode.RunMacro;
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMacro = "WASD";
@@ -36,17 +33,20 @@ namespace RhinoWASD
 
         protected override void OnShutdown()
         {
-            timer.Stop();
-            timer.Tick -= DetectUnofficialEvents;
             timer.Dispose();
             timer = null;
         }
 
-        private static void DetectUnofficialEvents(object sender, EventArgs args)
+        private static void DetectUnofficialEvents(object state)
         {
             if (RhinoDoc.ActiveDoc == null) { return; }
+            if (RhinoDoc.ActiveDoc.Objects == null) { return; }
             if (RhinoDoc.ActiveDoc.Views == null) { return; }
             if (RhinoDoc.ActiveDoc.Views.ActiveView == null) { return; }
+
+            double startTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+            if (startTime < waitUntil) { return; }
+            waitUntil = startTime + 60 * 1000;
 
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
 
@@ -58,15 +58,8 @@ namespace RhinoWASD
                 System.Drawing.Point cursorInView = vp.ScreenToClient(currentCursorPosition);
                 int cursorX = cursorInView.X;
                 int cursorY = cursorInView.Y;
-                if (0 < cursorX && cursorX < viewWidth && 0 < cursorY && cursorY < viewHeight && !isWorkingOnCameraTarget)
+                if (0 < cursorX && cursorX < viewWidth && 0 < cursorY && cursorY < viewHeight)
                 {
-                    isWorkingOnCameraTarget = true;
-                    System.Threading.Timer releaseTimer = null;
-                    releaseTimer = new System.Threading.Timer((obj) =>
-                    {
-                        isWorkingOnCameraTarget = false;
-                        releaseTimer.Dispose();
-                    }, null, 1000, System.Threading.Timeout.Infinite);
                     bool didSetTarget = false;
                     System.Drawing.Point cursorPositionInView = vp.ScreenToClient(Cursor.Position);
                     Point3d cameraLocation = vp.CameraLocation;
@@ -98,11 +91,13 @@ namespace RhinoWASD
                         vp.SetCameraTarget(nextCameraTaraget, false);
                         RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
                     }
-                    isWorkingOnCameraTarget = false;
-                    releaseTimer.Dispose();
                 }
             }
             lastCursorPosition = currentCursorPosition;
+
+            double endTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+            double duration = endTime - startTime;
+            waitUntil = endTime + 2 * duration;
         }
     }
 }
