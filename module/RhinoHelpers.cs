@@ -1,7 +1,6 @@
 ﻿using Display;
 using Rhino;
 using Rhino.Display;
-using Rhino.DocObjects;
 using System;
 
 namespace RhinoWASD
@@ -9,20 +8,6 @@ namespace RhinoWASD
     public static class RhinoHelpers
     {
         public static string CurrentNamedView = string.Empty;
-
-        private static bool IsNamedView(RhinoViewport vp, ViewportInfo info)
-        {
-            if (
-                Math.Abs(vp.Camera35mmLensLength - info.Camera35mmLensLength) < 1 &&
-                vp.CameraDirection == info.CameraDirection &&
-                vp.CameraLocation == info.CameraLocation &&
-                vp.CameraUp == info.CameraUp &&
-                vp.CameraTarget == info.TargetPoint
-                )
-                return true;
-
-            return false;
-        }
 
         private static void RestoreNamedView(int index)
         {

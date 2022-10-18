@@ -14,9 +14,12 @@ namespace RhinoWASD
 
         private static System.Threading.Timer timer;
 
+        private static string lastFilePath = "";
         private static System.Drawing.Point lastCursorPosition = Cursor.Position;
-        private static double waitUntil = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-        private static double durationRecord = 0;
+
+        public static bool setDepthEnabled = false;
+        private static double setDepthDurationRecord = 0;
+        private static double setDepthWaitUntil = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
 
         public PlugIn() { Instance = this; }
 
@@ -27,7 +30,7 @@ namespace RhinoWASD
             timer = new System.Threading.Timer(DetectUnofficialEvents, null, 0, 10);
 
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMode = Rhino.ApplicationSettings.MiddleMouseMode.RunMacro;
-            Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMacro = "WASD";
+            Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMacro = "Walk";
 
             return LoadReturnCode.Success;
         }
@@ -41,67 +44,83 @@ namespace RhinoWASD
         private static void DetectUnofficialEvents(object state)
         {
             if (RhinoDoc.ActiveDoc == null) { return; }
+            if (RhinoDoc.ActiveDoc.Path == null) { return; }
+
+            System.Drawing.Point currentCursorPosition = Cursor.Position;
+            if (!(currentCursorPosition.Equals(lastCursorPosition))) { SetCursorZoomDepth(); }
+            lastCursorPosition = currentCursorPosition;
+
+            string currentFilePath = RhinoDoc.ActiveDoc.Path;
+            if (lastFilePath != currentFilePath) { setDepthEnabled = true; }
+            lastFilePath = currentFilePath;
+        }
+
+        private static void SetCursorZoomDepth()
+        {
+            if (RhinoDoc.ActiveDoc == null) { return; }
             if (RhinoDoc.ActiveDoc.Objects == null) { return; }
             if (RhinoDoc.ActiveDoc.Views == null) { return; }
             if (RhinoDoc.ActiveDoc.Views.ActiveView == null) { return; }
 
+            if (!setDepthEnabled) { return; }
             double startTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-            if (startTime < waitUntil) { return; }
-            waitUntil = startTime + 60 * 1000;
+            if (startTime < setDepthWaitUntil) { return; }
+            setDepthWaitUntil = startTime + 1 * 1000;
 
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
-
             System.Drawing.Point currentCursorPosition = Cursor.Position;
-            if (!(currentCursorPosition.Equals(lastCursorPosition)))
+
+            int viewWidth = vp.Size.Width;
+            int viewHeight = vp.Size.Height;
+            System.Drawing.Point cursorInView = vp.ScreenToClient(currentCursorPosition);
+            int cursorX = cursorInView.X;
+            int cursorY = cursorInView.Y;
+            if (0 < cursorX && cursorX < viewWidth && 0 < cursorY && cursorY < viewHeight)
             {
-                int viewWidth = vp.Size.Width;
-                int viewHeight = vp.Size.Height;
-                System.Drawing.Point cursorInView = vp.ScreenToClient(currentCursorPosition);
-                int cursorX = cursorInView.X;
-                int cursorY = cursorInView.Y;
-                if (0 < cursorX && cursorX < viewWidth && 0 < cursorY && cursorY < viewHeight)
+                bool didSetTarget = false;
+                System.Drawing.Point cursorPositionInView = vp.ScreenToClient(Cursor.Position);
+                Point3d cameraLocation = vp.CameraLocation;
+                Line viewLine = vp.ClientToWorld(cursorPositionInView);
+                viewLine.Extend(1E8, 0);
+                Point3d nextCameraTaraget = viewLine.From;
+                foreach (RhinoObject eachObject in RhinoDoc.ActiveDoc.Objects)
                 {
-                    bool didSetTarget = false;
-                    System.Drawing.Point cursorPositionInView = vp.ScreenToClient(Cursor.Position);
-                    Point3d cameraLocation = vp.CameraLocation;
-                    Line viewLine = vp.ClientToWorld(cursorPositionInView);
-                    viewLine.Extend(1E8, 0);
-                    Point3d nextCameraTaraget = viewLine.From;
-                    foreach (RhinoObject eachObject in RhinoDoc.ActiveDoc.Objects)
+                    MeshType blankMesh = new MeshType();
+                    Mesh[] meshes = eachObject.GetMeshes(blankMesh);
+                    foreach (Mesh mesh in meshes)
                     {
-                        MeshType blankMesh = new MeshType();
-                        Mesh[] meshes = eachObject.GetMeshes(blankMesh);
-                        foreach (Mesh mesh in meshes)
+                        int[] faceIds;
+                        Point3d[] pinPoints = Rhino.Geometry.Intersect.Intersection.MeshLine(mesh, viewLine, out faceIds);
+                        foreach (Point3d pinPoint in pinPoints)
                         {
-                            int[] faceIds;
-                            Point3d[] pinPoints = Rhino.Geometry.Intersect.Intersection.MeshLine(mesh, viewLine, out faceIds);
-                            foreach (Point3d pinPoint in pinPoints)
+                            double beforeDistance = nextCameraTaraget.DistanceTo(cameraLocation);
+                            double newDistance = pinPoint.DistanceTo(cameraLocation);
+                            if (newDistance < beforeDistance)
                             {
-                                double beforeDistance = nextCameraTaraget.DistanceTo(cameraLocation);
-                                double newDistance = pinPoint.DistanceTo(cameraLocation);
-                                if (newDistance < beforeDistance)
-                                {
-                                    nextCameraTaraget = pinPoint;
-                                    didSetTarget = true;
-                                }
+                                nextCameraTaraget = pinPoint;
+                                didSetTarget = true;
                             }
                         }
                     }
-                    if (didSetTarget)
-                    {
-                        vp.SetCameraTarget(nextCameraTaraget, false);
-                        RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
-                    }
+                }
+                if (didSetTarget)
+                {
+                    vp.SetCameraTarget(nextCameraTaraget, false);
+                    RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
                 }
             }
-            lastCursorPosition = currentCursorPosition;
 
             double endTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
             double duration = endTime - startTime;
-            if (duration > 10) { durationRecord = durationRecord * 0.9 + duration * 0.1; }
+            setDepthDurationRecord = setDepthDurationRecord * 0.9 + duration * 0.1;
 
-            if (durationRecord < 100) { waitUntil = endTime; }
-            else { durationRecord = 0; }
+            if (setDepthDurationRecord < 100) { setDepthWaitUntil = endTime; }
+            else
+            {
+                setDepthEnabled = false;
+                setDepthDurationRecord = 0;
+                RhinoApp.WriteLine("This scene is too heavy. Walkie's cursor zoom depth feature is disabled.");
+            }
         }
     }
 }
