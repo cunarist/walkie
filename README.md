@@ -1,6 +1,6 @@
 # About
 
-A plugin for Rhinoceros with game-like walk mode and cursor zoom depth
+A plugin for Rhinoceros with game-like walk mode, cursor zoom depth and object zoom depth
 
 # Links
 
