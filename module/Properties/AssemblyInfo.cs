@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 #endif
 
 [assembly: AssemblyTitle("Walkie")]
-[assembly: AssemblyDescription("A plugin for Rhinoceros with game-like walk mode and cursor zoom depth")]
+[assembly: AssemblyDescription("A plugin for Rhinoceros with game-like walk mode, cursor zoom depth and selection zoom depth")]
 [assembly: AssemblyCompany("Cunarist")]
 [assembly: AssemblyProduct("Walkie")]
 [assembly: AssemblyCopyright("© 2022 Cunarist")]
