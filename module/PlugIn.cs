@@ -42,7 +42,6 @@ namespace RhinoWASD
         protected override void OnShutdown()
         {
             timer.Dispose();
-            timer = null;
         }
 
         private static void DetectUnofficialEvents(object state)
