@@ -4,6 +4,8 @@ using Rhino.DocObjects;
 using Rhino.Geometry;
 using Rhino.PlugIns;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace RhinoWASD
@@ -14,7 +16,6 @@ namespace RhinoWASD
 
         private static System.Threading.Timer timer;
 
-        private static string lastFilePath = "";
         private static System.Drawing.Point lastCursorPosition = Cursor.Position;
 
         public static bool setDepthEnabled = false;
@@ -31,6 +32,9 @@ namespace RhinoWASD
 
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMode = Rhino.ApplicationSettings.MiddleMouseMode.RunMacro;
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMacro = "Walk";
+
+            RhinoDoc.SelectObjects += (o, e) => SetObjectZoomDepth();
+            RhinoDoc.ActiveDocumentChanged += (o, e) => setDepthEnabled = true;
 
             return LoadReturnCode.Success;
         }
@@ -49,10 +53,6 @@ namespace RhinoWASD
             System.Drawing.Point currentCursorPosition = Cursor.Position;
             if (!(currentCursorPosition.Equals(lastCursorPosition))) { SetCursorZoomDepth(); }
             lastCursorPosition = currentCursorPosition;
-
-            string currentFilePath = RhinoDoc.ActiveDoc.Path;
-            if (lastFilePath != currentFilePath) { setDepthEnabled = true; }
-            lastFilePath = currentFilePath;
         }
 
         private static void SetCursorZoomDepth()
@@ -121,6 +121,26 @@ namespace RhinoWASD
                 setDepthDurationRecord = 0;
                 RhinoApp.WriteLine("This document is too heavy. Walkie's cursor zoom depth feature is disabled.");
             }
+        }
+
+        private static void SetObjectZoomDepth()
+        {
+            if (RhinoDoc.ActiveDoc == null) { return; }
+            if (RhinoDoc.ActiveDoc.Objects == null) { return; }
+            if (RhinoDoc.ActiveDoc.Views == null) { return; }
+            if (RhinoDoc.ActiveDoc.Views.ActiveView == null) { return; }
+
+            List<RhinoObject> selectedObjects = RhinoDoc.ActiveDoc.Objects.GetSelectedObjects(true, true).ToList();
+            if (selectedObjects.Count() == 0) { return; }
+
+            RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
+
+            BoundingBox boundingBox;
+            int getCount = Math.Min(selectedObjects.Count(), 100);
+            RhinoObject.GetTightBoundingBox(selectedObjects.GetRange(0, getCount), out boundingBox);
+
+            vp.SetCameraTarget(boundingBox.Center, false);
+            RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
         }
     }
 }
