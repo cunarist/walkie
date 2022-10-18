@@ -97,7 +97,10 @@ namespace RhinoWASD
 
             double endTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
             double duration = endTime - startTime;
-            waitUntil = endTime + 2 * duration;
+            if (duration < 100)
+            {
+                waitUntil = endTime;
+            }
         }
     }
 }
