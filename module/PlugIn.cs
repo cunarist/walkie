@@ -16,6 +16,7 @@ namespace RhinoWASD
 
         private static System.Drawing.Point lastCursorPosition = Cursor.Position;
         private static double waitUntil = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+        private static double durationRecord = 0;
 
         public PlugIn() { Instance = this; }
 
@@ -97,10 +98,10 @@ namespace RhinoWASD
 
             double endTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
             double duration = endTime - startTime;
-            if (duration < 100)
-            {
-                waitUntil = endTime;
-            }
+            if (duration > 10) { durationRecord = durationRecord * 0.9 + duration * 0.1; }
+
+            if (durationRecord < 100) { waitUntil = endTime; }
+            else { durationRecord = 0; }
         }
     }
 }
