@@ -46,9 +46,6 @@ namespace RhinoWASD
 
         private static void DetectUnofficialEvents(object state)
         {
-            if (RhinoDoc.ActiveDoc == null) { return; }
-            if (RhinoDoc.ActiveDoc.Path == null) { return; }
-
             System.Drawing.Point currentCursorPosition = Cursor.Position;
             if (!(currentCursorPosition.Equals(lastCursorPosition))) { SetCursorZoomDepth(); }
             lastCursorPosition = currentCursorPosition;
