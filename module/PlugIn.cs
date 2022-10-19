@@ -6,8 +6,8 @@ using Rhino.PlugIns;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace RhinoWASD
 {
@@ -127,16 +127,34 @@ namespace RhinoWASD
             if (RhinoDoc.ActiveDoc.Views == null) { return; }
             if (RhinoDoc.ActiveDoc.Views.ActiveView == null) { return; }
 
+            double startTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+
             List<RhinoObject> selectedObjects = RhinoDoc.ActiveDoc.Objects.GetSelectedObjects(true, true).ToList();
             if (selectedObjects.Count() == 0) { return; }
 
-            RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
+            List<Point3d> centers = new List<Point3d>();
 
-            BoundingBox boundingBox;
-            int getCount = Math.Min(selectedObjects.Count(), 10);
-            RhinoObject.GetTightBoundingBox(selectedObjects.GetRange(0, getCount), out boundingBox);
+            foreach (RhinoObject selectedObject in selectedObjects)
+            {
+                BoundingBox boundingBox;
+                int getCount = Math.Min(selectedObjects.Count(), 10);
+                RhinoObject.GetTightBoundingBox(selectedObjects.GetRange(0, getCount), out boundingBox);
+                centers.Add(boundingBox.Center);
+                double nowTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+                double duration = nowTime - startTime;
+                if (100 < duration)
+                {
+                    break;
+                }
+            }
 
-            vp.SetCameraTarget(boundingBox.Center, false);
+            Point3d averageCenter = new Point3d(
+                centers.Average(p => p.X),
+                centers.Average(p => p.Y),
+                centers.Average(p => p.Z)
+            );
+
+            RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport.SetCameraTarget(averageCenter, false);
             RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
         }
     }
