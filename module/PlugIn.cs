@@ -132,7 +132,7 @@ namespace RhinoWASD
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
 
             BoundingBox boundingBox;
-            int getCount = Math.Min(selectedObjects.Count(), 100);
+            int getCount = Math.Min(selectedObjects.Count(), 10);
             RhinoObject.GetTightBoundingBox(selectedObjects.GetRange(0, getCount), out boundingBox);
 
             vp.SetCameraTarget(boundingBox.Center, false);
