@@ -1,5 +1,5 @@
 "C:\Program Files\Rhino 7\System\Yak.exe" login
-"C:\Program Files\Rhino 7\System\Yak.exe" push "./distribution/walkie-4.1.0-rh7_18-any.yak"
+"C:\Program Files\Rhino 7\System\Yak.exe" push "./distribution/walkie-4.2.0-rh7_18-any.yak"
 "C:\Program Files\Rhino 7\System\Yak.exe" yank walkie 0.0.0
 "C:\Program Files\Rhino 7\System\Yak.exe" search --all walkie
 pause
