@@ -28,12 +28,12 @@ namespace RhinoWASD
 
         protected override LoadReturnCode OnLoad(ref string errorMessage)
         {
-            timer = new System.Threading.Timer(DetectUnofficialEvents, null, 0, 10);
+            timer = new System.Threading.Timer(DetectUnofficialEvents, null, 0, 1);
 
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMode = Rhino.ApplicationSettings.MiddleMouseMode.RunMacro;
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMacro = "Walk";
 
-            RhinoDoc.SelectObjects += (o, e) => SetObjectZoomDepth();
+            RhinoDoc.SelectObjects += (o, e) => SetSelectionZoomDepth();
             RhinoDoc.ActiveDocumentChanged += (o, e) => setDepthEnabled = true;
 
             return LoadReturnCode.Success;
@@ -119,7 +119,7 @@ namespace RhinoWASD
             }
         }
 
-        private static void SetObjectZoomDepth()
+        private static void SetSelectionZoomDepth()
         {
             if (RhinoDoc.ActiveDoc == null) { return; }
             if (RhinoDoc.ActiveDoc.Objects == null) { return; }
