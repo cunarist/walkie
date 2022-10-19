@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace RhinoWASD
 {
@@ -33,8 +34,8 @@ namespace RhinoWASD
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMode = Rhino.ApplicationSettings.MiddleMouseMode.RunMacro;
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMacro = "Walk";
 
-            RhinoDoc.SelectObjects += (o, e) => SetSelectionZoomDepth();
-            RhinoDoc.ActiveDocumentChanged += (o, e) => setDepthEnabled = true;
+            RhinoDoc.SelectObjects += (o, e) => new Thread(() => SetSelectionZoomDepth()).Start();
+            RhinoDoc.ActiveDocumentChanged += (o, e) => new Thread(() => setDepthEnabled = true).Start();
 
             return LoadReturnCode.Success;
         }
