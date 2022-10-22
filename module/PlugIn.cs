@@ -19,8 +19,7 @@ namespace RhinoWASD
 
         private static System.Drawing.Point lastCursorPosition = Cursor.Position;
 
-        public static bool setDepthEnabled = false;
-        private static double setDepthDurationRecord = 0;
+        private static bool didNotifyPerformance = false;
         private static double setDepthWaitUntil = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
 
         public PlugIn() { Instance = this; }
@@ -35,7 +34,7 @@ namespace RhinoWASD
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMacro = "Walk";
 
             RhinoDoc.SelectObjects += (o, e) => new Thread(SetSelectionZoomDepth).Start();
-            RhinoDoc.ActiveDocumentChanged += (o, e) => new Thread(() => setDepthEnabled = true).Start();
+            RhinoDoc.ActiveDocumentChanged += (o, e) => new Thread(() => didNotifyPerformance = false).Start();
 
             return LoadReturnCode.Success;
         }
@@ -59,7 +58,6 @@ namespace RhinoWASD
             if (RhinoDoc.ActiveDoc.Views == null) { return; }
             if (RhinoDoc.ActiveDoc.Views.ActiveView == null) { return; }
 
-            if (!setDepthEnabled) { return; }
             double startTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
             if (startTime < setDepthWaitUntil) { return; }
             setDepthWaitUntil = startTime + 1 * 1000;
@@ -75,6 +73,7 @@ namespace RhinoWASD
             if (0 < cursorX && cursorX < viewWidth && 0 < cursorY && cursorY < viewHeight)
             {
                 bool didSetTarget = false;
+                bool didAll = true;
                 System.Drawing.Point cursorPositionInView = vp.ScreenToClient(Cursor.Position);
                 Point3d cameraLocation = vp.CameraLocation;
                 Line viewLine = vp.ClientToWorld(cursorPositionInView);
@@ -99,8 +98,20 @@ namespace RhinoWASD
                             }
                         }
                     }
+                    double nowTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+                    double middleDuration = nowTime - startTime;
+                    if (50 < middleDuration)
+                    {
+                        didAll = false;
+                        if (!didNotifyPerformance)
+                        {
+                            RhinoApp.WriteLine("Walkie's cursor zoom depth feature might not work if the document is too heavy.");
+                            didNotifyPerformance = true;
+                        }
+                        break;
+                    }
                 }
-                if (didSetTarget)
+                if (didSetTarget && didAll)
                 {
                     vp.SetCameraTarget(nextCameraTaraget, false);
                     RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
@@ -108,16 +119,7 @@ namespace RhinoWASD
             }
 
             double endTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-            double duration = endTime - startTime;
-            setDepthDurationRecord = setDepthDurationRecord * 0.9 + duration * 0.1;
-
-            if (setDepthDurationRecord < 100) { setDepthWaitUntil = endTime; }
-            else
-            {
-                setDepthEnabled = false;
-                setDepthDurationRecord = 0;
-                RhinoApp.WriteLine("Walkie's cursor zoom depth feature is disabled because this document is too heavy.");
-            }
+            setDepthWaitUntil = endTime;
         }
 
         private static void SetSelectionZoomDepth()
@@ -141,8 +143,8 @@ namespace RhinoWASD
                 RhinoObject.GetTightBoundingBox(selectedObjects.GetRange(0, getCount), out boundingBox);
                 centers.Add(boundingBox.Center);
                 double nowTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-                double duration = nowTime - startTime;
-                if (100 < duration)
+                double middleDuration = nowTime - startTime;
+                if (50 < middleDuration)
                 {
                     break;
                 }
