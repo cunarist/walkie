@@ -5,7 +5,7 @@ authors:
   - Cunarist
 description: A plugin for Rhinoceros with game-like walk mode, cursor zoom depth and selection zoom depth
 url: https://cunarist.com/walkie
-icon: product_icon_walkie.png
+icon: product_icon.png
 keywords:
   - walk
   - move
