@@ -15,4 +15,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("Walkie")]
 [assembly: AssemblyCopyright("© 2022 Cunarist")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("4.3")]
+[assembly: AssemblyVersion("4.4")]
