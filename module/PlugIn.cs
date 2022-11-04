@@ -6,7 +6,6 @@ using Rhino.PlugIns;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace RhinoWASD
@@ -17,10 +16,7 @@ namespace RhinoWASD
 
         private static System.Threading.Timer timer;
 
-        private static System.Drawing.Point lastCursorPosition = Cursor.Position;
-
-        private static bool didNotifyPerformance = false;
-        private static double setDepthWaitUntil = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+        private static bool didNotifyCursorDepthPerformance = false;
 
         public PlugIn() { Instance = this; }
 
@@ -28,13 +24,12 @@ namespace RhinoWASD
 
         protected override LoadReturnCode OnLoad(ref string errorMessage)
         {
-            timer = new System.Threading.Timer(DetectUnofficialEvents, null, 0, 1);
+            timer = new System.Threading.Timer((s) => { SetCursorZoomDepth(); SetSelectionZoomDepth(); }, null, 0, 500);
 
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMode = Rhino.ApplicationSettings.MiddleMouseMode.RunMacro;
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMacro = "Walk";
 
-            RhinoDoc.SelectObjects += (o, e) => new Thread(SetSelectionZoomDepth).Start();
-            RhinoDoc.ActiveDocumentChanged += (o, e) => new Thread(() => didNotifyPerformance = false).Start();
+            RhinoDoc.EndOpenDocumentInitialViewUpdate += (o, e) => { didNotifyCursorDepthPerformance = false; };
 
             return LoadReturnCode.Success;
         }
@@ -42,13 +37,6 @@ namespace RhinoWASD
         protected override void OnShutdown()
         {
             timer.Dispose();
-        }
-
-        private static void DetectUnofficialEvents(object state)
-        {
-            System.Drawing.Point currentCursorPosition = Cursor.Position;
-            if (!(currentCursorPosition.Equals(lastCursorPosition))) { SetCursorZoomDepth(); }
-            lastCursorPosition = currentCursorPosition;
         }
 
         private static void SetCursorZoomDepth()
@@ -59,8 +47,6 @@ namespace RhinoWASD
             if (RhinoDoc.ActiveDoc.Views.ActiveView == null) { return; }
 
             double startTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-            if (startTime < setDepthWaitUntil) { return; }
-            setDepthWaitUntil = startTime + 1 * 1000;
 
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
             System.Drawing.Point currentCursorPosition = Cursor.Position;
@@ -100,13 +86,13 @@ namespace RhinoWASD
                     }
                     double nowTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
                     double middleDuration = nowTime - startTime;
-                    if (50 < middleDuration)
+                    if (20 < middleDuration)
                     {
                         didAll = false;
-                        if (!didNotifyPerformance)
+                        if (!didNotifyCursorDepthPerformance)
                         {
                             RhinoApp.WriteLine("Walkie's cursor zoom depth feature might not work if the document is too heavy.");
-                            didNotifyPerformance = true;
+                            didNotifyCursorDepthPerformance = true;
                         }
                         break;
                     }
@@ -117,9 +103,6 @@ namespace RhinoWASD
                     RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
                 }
             }
-
-            double endTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-            setDepthWaitUntil = endTime;
         }
 
         private static void SetSelectionZoomDepth()
@@ -139,12 +122,13 @@ namespace RhinoWASD
             foreach (RhinoObject selectedObject in selectedObjects)
             {
                 BoundingBox boundingBox;
-                int getCount = Math.Min(selectedObjects.Count(), 10);
-                RhinoObject.GetTightBoundingBox(selectedObjects.GetRange(0, getCount), out boundingBox);
+                List<RhinoObject> singleList = new List<RhinoObject>();
+                singleList.Add(selectedObject);
+                RhinoObject.GetTightBoundingBox(singleList, out boundingBox);
                 centers.Add(boundingBox.Center);
                 double nowTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
                 double middleDuration = nowTime - startTime;
-                if (50 < middleDuration)
+                if (20 < middleDuration)
                 {
                     break;
                 }
