@@ -3,6 +3,7 @@ using Rhino.Display;
 using Rhino.Geometry;
 using Rhino.PlugIns;
 using Rhino.UI;
+using System.Threading.Tasks;
 
 namespace RhinoWASD
 {
@@ -18,12 +19,9 @@ namespace RhinoWASD
 
         protected override LoadReturnCode OnLoad(ref string errorMessage)
         {
-            timer = new System.Timers.Timer(1000);
-            timer.Elapsed += (s, e) => { SetCursorZoomDepth(); };
-            timer.Start();
-
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMode = Rhino.ApplicationSettings.MiddleMouseMode.RunMacro;
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMacro = "Walk";
+            SetCursorZoomDepth();
 
             return LoadReturnCode.Success;
         }
@@ -34,43 +32,43 @@ namespace RhinoWASD
             timer.Dispose();
         }
 
-        private static void SetCursorZoomDepth()
+        async private static void SetCursorZoomDepth()
         {
-            if (RhinoDoc.ActiveDoc == null) { return; }
-            if (RhinoDoc.ActiveDoc.Objects == null) { return; }
-            if (RhinoDoc.ActiveDoc.Views == null) { return; }
-            if (RhinoDoc.ActiveDoc.Views.ActiveView == null) { return; }
-            if (RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport == null) { return; }
-
-            RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
-
-            Point2d cursorInScreen = MouseCursor.Location;
-            int cursorInScreenX = (int)cursorInScreen.X;
-            int cursorInScreenY = (int)cursorInScreen.Y;
-            System.Drawing.Point cursorInSystemScreen = new System.Drawing.Point(cursorInScreenX, cursorInScreenY);
-            System.Drawing.Point cursorInView = vp.ScreenToClient(cursorInSystemScreen);
-            int cursorX = cursorInView.X;
-            int cursorY = cursorInView.Y;
-            int viewWidth = vp.Size.Width;
-            int viewHeight = vp.Size.Height;
-
-            if (!(0 < cursorX && cursorX < viewWidth) || !(0 < cursorY && cursorY < viewHeight)) { return; }
-
-            using (ZBufferCapture depthBuffer = new ZBufferCapture(vp))
+            while (true)
             {
-                Point3d currentCursorWorldPosition = depthBuffer.WorldPointAt(cursorX, cursorY);
+                if (RhinoDoc.ActiveDoc == null) { await Task.Delay(10); continue; }
+                if (RhinoDoc.ActiveDoc.Objects == null) { await Task.Delay(10); continue; }
+                if (RhinoDoc.ActiveDoc.Views == null) { await Task.Delay(10); continue; }
+                if (RhinoDoc.ActiveDoc.Views.ActiveView == null) { await Task.Delay(10); continue; }
+                if (RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport == null) { await Task.Delay(10); continue; }
 
-                if (currentCursorWorldPosition != lastCursorWorldPosition)
+                RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
+
+                Point2d cursorInScreen = MouseCursor.Location;
+                int cursorInScreenX = (int)cursorInScreen.X;
+                int cursorInScreenY = (int)cursorInScreen.Y;
+                System.Drawing.Point cursorInSystemScreen = new System.Drawing.Point(cursorInScreenX, cursorInScreenY);
+                System.Drawing.Point cursorInView = vp.ScreenToClient(cursorInSystemScreen);
+                int cursorX = cursorInView.X;
+                int cursorY = cursorInView.Y;
+                int viewWidth = vp.Size.Width;
+                int viewHeight = vp.Size.Height;
+
+                if (!(0 < cursorX && cursorX < viewWidth) || !(0 < cursorY && cursorY < viewHeight)) { await Task.Delay(10); continue; }
+
+                using (ZBufferCapture depthBuffer = new ZBufferCapture(vp))
                 {
-                    lastCursorWorldPosition = currentCursorWorldPosition;
-                    vp.SetCameraTarget(currentCursorWorldPosition, false);
-                    RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
-                    System.Diagnostics.Debug.WriteLine("Set");
+                    Point3d currentCursorWorldPosition = depthBuffer.WorldPointAt(cursorX, cursorY);
+
+                    if (currentCursorWorldPosition != lastCursorWorldPosition)
+                    {
+                        lastCursorWorldPosition = currentCursorWorldPosition;
+                        vp.SetCameraTarget(currentCursorWorldPosition, false);
+                        RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
+                    }
                 }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("Not Set");
-                }
+
+                await Task.Delay(10);
             }
         }
     }
