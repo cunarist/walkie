@@ -10,7 +10,6 @@ namespace RhinoWASD
     public class PlugIn : Rhino.PlugIns.PlugIn
     {
         public override PlugInLoadTime LoadTime => PlugInLoadTime.AtStartup;
-        private static System.Timers.Timer timer;
         private static Point3d lastCursorWorldPosition = new Point3d(0, 0, 0);
 
         public PlugIn() { Instance = this; }
@@ -28,8 +27,6 @@ namespace RhinoWASD
 
         protected override void OnShutdown()
         {
-            timer.Stop();
-            timer.Dispose();
         }
 
         async private static void SetCursorZoomDepth()
