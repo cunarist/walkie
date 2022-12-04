@@ -3,6 +3,8 @@ using Rhino.Display;
 using Rhino.Geometry;
 using Rhino.PlugIns;
 using Rhino.UI;
+using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace RhinoWASD
@@ -11,6 +13,8 @@ namespace RhinoWASD
     {
         public override PlugInLoadTime LoadTime => PlugInLoadTime.AtStartup;
         private static Point3d lastCursorWorldPosition = new Point3d(0, 0, 0);
+        private static double setDepthDurationRecord = 0;
+        private static bool setDepthEnabled = true;
 
         public PlugIn() { Instance = this; }
 
@@ -21,6 +25,8 @@ namespace RhinoWASD
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMode = Rhino.ApplicationSettings.MiddleMouseMode.RunMacro;
             Rhino.ApplicationSettings.GeneralSettings.MiddleMouseMacro = "Walk";
             SetCursorZoomDepth();
+
+            RhinoDoc.EndOpenDocument += (a, b) => { setDepthEnabled = true; };
 
             return LoadReturnCode.Success;
         }
@@ -33,11 +39,15 @@ namespace RhinoWASD
         {
             while (true)
             {
-                if (RhinoDoc.ActiveDoc == null) { await Task.Delay(10); continue; }
-                if (RhinoDoc.ActiveDoc.Objects == null) { await Task.Delay(10); continue; }
-                if (RhinoDoc.ActiveDoc.Views == null) { await Task.Delay(10); continue; }
-                if (RhinoDoc.ActiveDoc.Views.ActiveView == null) { await Task.Delay(10); continue; }
-                if (RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport == null) { await Task.Delay(10); continue; }
+                if (!setDepthEnabled) { await Task.Delay(100); continue; }
+
+                double startTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+
+                if (RhinoDoc.ActiveDoc == null) { await Task.Delay(100); continue; }
+                if (RhinoDoc.ActiveDoc.Objects == null) { await Task.Delay(100); continue; }
+                if (RhinoDoc.ActiveDoc.Views == null) { await Task.Delay(100); continue; }
+                if (RhinoDoc.ActiveDoc.Views.ActiveView == null) { await Task.Delay(100); continue; }
+                if (RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport == null) { await Task.Delay(100); continue; }
 
                 RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
 
@@ -51,7 +61,7 @@ namespace RhinoWASD
                 int viewWidth = vp.Size.Width;
                 int viewHeight = vp.Size.Height;
 
-                if (!(0 < cursorX && cursorX < viewWidth) || !(0 < cursorY && cursorY < viewHeight)) { await Task.Delay(10); continue; }
+                if (!(0 < cursorX && cursorX < viewWidth) || !(0 < cursorY && cursorY < viewHeight)) { await Task.Delay(100); continue; }
 
                 using (ZBufferCapture depthBuffer = new ZBufferCapture(vp))
                 {
@@ -65,7 +75,21 @@ namespace RhinoWASD
                     }
                 }
 
-                await Task.Delay(10);
+                double endTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+                double duration = endTime - startTime;
+                setDepthDurationRecord = setDepthDurationRecord * 0.9 + duration * 0.1;
+
+                Debug.WriteLine(duration);
+                Debug.WriteLine(setDepthDurationRecord);
+
+                if (setDepthDurationRecord > 100)
+                {
+                    setDepthEnabled = false;
+                    setDepthDurationRecord = 0;
+                    RhinoApp.WriteLine("Walkie's cursor zoom depth feature is disabled because this document is too heavy.");
+                }
+
+                await Task.Delay(100);
             }
         }
     }
