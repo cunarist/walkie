@@ -4,7 +4,6 @@ using Rhino.Geometry;
 using Rhino.PlugIns;
 using Rhino.UI;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace RhinoWASD
@@ -79,10 +78,7 @@ namespace RhinoWASD
                 double duration = endTime - startTime;
                 setDepthDurationRecord = setDepthDurationRecord * 0.9 + duration * 0.1;
 
-                Debug.WriteLine(duration);
-                Debug.WriteLine(setDepthDurationRecord);
-
-                if (setDepthDurationRecord > 100)
+                if (setDepthDurationRecord > 20)
                 {
                     setDepthEnabled = false;
                     setDepthDurationRecord = 0;

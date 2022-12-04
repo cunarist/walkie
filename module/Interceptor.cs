@@ -60,6 +60,8 @@ namespace RhinoWASD
             Esc = false,
             Enter = false;
 
+        public static bool lockZAxis = false;
+
         public static System.Drawing.Point MouseOffset = System.Drawing.Point.Empty;
 
         public static void ShowSpeedMessage()
@@ -173,18 +175,25 @@ namespace RhinoWASD
             if (Shift)
                 finalSpeed *= 4;
 
-            if (Q)
-                loc -= Vector3d.ZAxis * finalSpeed;
+            double originalZ = loc.Z;
+
             if (W)
                 loc += dir * finalSpeed;
-            if (E)
-                loc += Vector3d.ZAxis * finalSpeed;
             if (A)
                 loc -= Vector3d.CrossProduct(dir, up) * finalSpeed;
             if (S)
                 loc -= dir * finalSpeed;
             if (D)
                 loc += Vector3d.CrossProduct(dir, up) * finalSpeed;
+            if (Q)
+                loc -= Vector3d.ZAxis * finalSpeed;
+            if (E)
+                loc += Vector3d.ZAxis * finalSpeed;
+
+            if (lockZAxis)
+            {
+                loc.Z = originalZ;
+            }
 
             vp.SetCameraLocation(loc, false);
 
@@ -206,7 +215,6 @@ namespace RhinoWASD
 
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-
             if (nCode < 0)
                 return CallNextHookEx((IntPtr)0, nCode, wParam, lParam);
 
@@ -236,6 +244,8 @@ namespace RhinoWASD
                     S = IsKeyDown;
                 else if (key == Keys.D)
                     D = IsKeyDown;
+                else if (key == Keys.LShiftKey || key == Keys.RShiftKey || key == Keys.Shift || key == Keys.ShiftKey)
+                    Shift = IsKeyDown;
                 else if (key == Keys.H)
                 {
                     if (IsKeyDown)
@@ -243,8 +253,19 @@ namespace RhinoWASD
                     else
                         Overlay.ShowImage(null);
                 }
-                else if (key == Keys.LShiftKey || key == Keys.RShiftKey || key == Keys.Shift || key == Keys.ShiftKey)
-                    Shift = IsKeyDown;
+                else if (key == Keys.Z && IsKeyDown)
+                {
+                    if (lockZAxis)
+                    {
+                        lockZAxis = false;
+                        Overlay.ShowMessage("Vertical movement enabled");
+                    }
+                    else
+                    {
+                        lockZAxis = true;
+                        Overlay.ShowMessage("Vertical movement disabled");
+                    }
+                }
                 else if (key == Keys.Left && IsKeyDown)
                     RhinoHelpers.PreviousNamedView();
                 else if (key == Keys.Right && IsKeyDown)
@@ -252,9 +273,7 @@ namespace RhinoWASD
                 else if (key == Keys.Oemplus && IsKeyDown)
                     RhinoHelpers.SaveNamedView();
                 else if (key == Keys.PrintScreen)
-                    return CallNextHookEx((IntPtr)0, nCode, wParam, lParam); // forward PrintScreen Key
-
-                //RhinoApp.WriteLine("KEY:" + key);
+                    return CallNextHookEx((IntPtr)0, nCode, wParam, lParam);
             }
             else if (wParam == (IntPtr)WM_MOUSEMOVE)
             {

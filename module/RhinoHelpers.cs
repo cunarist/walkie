@@ -1,6 +1,5 @@
 ﻿using Display;
 using Rhino;
-using Rhino.Display;
 using System;
 
 namespace RhinoWASD
@@ -29,7 +28,6 @@ namespace RhinoWASD
             {
                 int cur = RhinoDoc.ActiveDoc.NamedViews.FindByName(CurrentNamedView);
                 int newCur = cur - 1;
-                RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
                 if (newCur >= 0 && newCur < count)
                 {
                     RestoreNamedView(newCur);
@@ -47,7 +45,6 @@ namespace RhinoWASD
             {
                 int cur = RhinoDoc.ActiveDoc.NamedViews.FindByName(CurrentNamedView);
                 int newCur = cur + 1;
-                RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
                 if (newCur >= 0 && newCur < count)
                 {
                     RestoreNamedView(newCur);
