@@ -1,5 +1,7 @@
-﻿using Rhino;
+﻿using Display;
+using Rhino;
 using Rhino.Commands;
+using Rhino.Display;
 
 namespace RhinoWASD
 {
@@ -13,8 +15,17 @@ namespace RhinoWASD
 
         protected override Result RunCommand(RhinoDoc doc, RunMode mode)
         {
-            Interceptor.StartWASD();
-            return Result.Success;
+            RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
+            if (vp.IsParallelProjection)
+            {
+                Overlay.ShowMessage("Cannot walk in parallel view");
+                return Result.Cancel;
+            }
+            else
+            {
+                Interceptor.StartWASD();
+                return Result.Success;
+            }
         }
     }
 }
