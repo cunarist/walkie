@@ -18,7 +18,7 @@ namespace RhinoWASD
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
             if (vp.IsParallelProjection)
             {
-                Overlay.ShowMessage("Cannot walk in parallel view");
+                Overlay.ShowMessage("Cannot walk in a parallel view");
                 return Result.Cancel;
             }
             else
