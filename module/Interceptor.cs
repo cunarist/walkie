@@ -228,7 +228,6 @@ namespace RhinoWASD
             else if (wParam == (IntPtr)WM_LBUTTONUP)
             {
                 StopWASD(true, true);
-                Overlay.ShowImage(null);
                 RhinoHelpers.SetAimpointZoomDepth();
             }
             else if (wParam == (IntPtr)WM_RBUTTONUP)
