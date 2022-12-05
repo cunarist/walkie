@@ -134,14 +134,10 @@ namespace RhinoWASD
             UnhookWindowsHookEx(_kHook);
             UnhookWindowsHookEx(_mHook);
 
-            Point3d newTarget = vp.CameraLocation + vp.CameraDirection * (speed * 100);
-            vp.SetCameraTarget(newTarget, false);
-            RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
-
             Cursor.Position = CursorPositionBuffer;
             ShowCursor(true);
 
-            Q = W = E = S = A = D = Shift = Esc = Enter = false;
+            W = A = S = D = Q = E = Shift = Esc = Enter = false;
         }
 
         private static void OnTick(object sender, EventArgs args)
@@ -219,8 +215,16 @@ namespace RhinoWASD
                 return CallNextHookEx((IntPtr)0, nCode, wParam, lParam);
 
             if (wParam == (IntPtr)WM_LBUTTONDOWN)
+                Overlay.ShowImage(Properties.Resources.aimpoint);
+            else if (wParam == (IntPtr)WM_LBUTTONUP)
+            {
+                Overlay.ShowImage(null);
+                RhinoHelpers.SetAimpointZoomDepth();
                 StopWASD(true);
-            else if (wParam == (IntPtr)WM_MBUTTONDOWN || wParam == (IntPtr)WM_RBUTTONDOWN)
+            }
+            else if (wParam == (IntPtr)WM_RBUTTONUP)
+                StopWASD(false);
+            else if (wParam == (IntPtr)WM_MBUTTONDOWN)
                 StopWASD(false);
 
             if (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_KEYUP)
@@ -249,7 +253,7 @@ namespace RhinoWASD
                 else if (key == Keys.H)
                 {
                     if (IsKeyDown)
-                        Overlay.ShowImage(Properties.Resources.Info);
+                        Overlay.ShowImage(Properties.Resources.help);
                     else
                         Overlay.ShowImage(null);
                 }
@@ -298,10 +302,6 @@ namespace RhinoWASD
                 Point3d newTarget = vp.CameraLocation + vp.CameraDirection * (speed * 100);
                 vp.SetCameraTarget(newTarget, false);
                 RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
-            }
-            else if ((int)wParam >= WM_LBUTTONDOWN && (int)wParam <= WM_RBUTTONUP)
-            {
-                //RhinoApp.WriteLine("CLICK " + DateTime.Now.Ticks);
             }
             else
                 return CallNextHookEx((IntPtr)0, nCode, wParam, lParam);
