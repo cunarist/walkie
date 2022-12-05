@@ -111,7 +111,7 @@ namespace RhinoWASD
             ShowSpeedMessage();
         }
 
-        public static void StopWASD(bool ShouldKeepView, bool centerCursor)
+        public static void StopWASD(bool ShouldKeepView, bool shouldAim)
         {
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
 
@@ -131,11 +131,9 @@ namespace RhinoWASD
                 timer = null;
             }
 
-            UnhookWindowsHookEx(_kHook);
-            UnhookWindowsHookEx(_mHook);
-
-            if (centerCursor)
+            if (shouldAim)
             {
+                RhinoHelpers.SetAimpointZoomDepth();
                 int viewWidth = vp.Size.Width;
                 int viewHeight = vp.Size.Height;
                 Cursor.Position = vp.ClientToScreen(new Point2d(viewWidth / 2, viewHeight / 2));
@@ -144,6 +142,9 @@ namespace RhinoWASD
             {
                 Cursor.Position = CursorPositionBuffer;
             }
+
+            UnhookWindowsHookEx(_kHook);
+            UnhookWindowsHookEx(_mHook);
             ShowCursor(true);
 
             W = A = S = D = Q = E = Shift = Esc = Enter = false;
@@ -228,7 +229,6 @@ namespace RhinoWASD
             else if (wParam == (IntPtr)WM_LBUTTONUP)
             {
                 StopWASD(true, true);
-                RhinoHelpers.SetAimpointZoomDepth();
             }
             else if (wParam == (IntPtr)WM_RBUTTONUP)
                 StopWASD(false, false);
