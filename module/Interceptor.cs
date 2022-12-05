@@ -227,9 +227,7 @@ namespace RhinoWASD
             if (wParam == (IntPtr)WM_LBUTTONDOWN)
                 Overlay.ShowImage(Properties.Resources.aimpoint);
             else if (wParam == (IntPtr)WM_LBUTTONUP)
-            {
                 StopWASD(true, true);
-            }
             else if (wParam == (IntPtr)WM_RBUTTONUP)
                 StopWASD(false, false);
             else if (wParam == (IntPtr)WM_MBUTTONDOWN)
