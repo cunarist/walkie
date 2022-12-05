@@ -68,13 +68,8 @@ namespace RhinoWASD
 
         public static void SetAimpointZoomDepth()
         {
-            if (RhinoDoc.ActiveDoc == null) { return; }
-            if (RhinoDoc.ActiveDoc.Objects == null) { return; }
-            if (RhinoDoc.ActiveDoc.Views == null) { return; }
-            if (RhinoDoc.ActiveDoc.Views.ActiveView == null) { return; }
-            if (RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport == null) { return; }
-
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
+
             int viewWidth = vp.Size.Width;
             int viewHeight = vp.Size.Height;
 
