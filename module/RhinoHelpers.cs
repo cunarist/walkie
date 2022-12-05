@@ -1,5 +1,7 @@
 ﻿using Display;
 using Rhino;
+using Rhino.Display;
+using Rhino.Geometry;
 using System;
 
 namespace RhinoWASD
@@ -62,6 +64,23 @@ namespace RhinoWASD
             }
             else
                 Overlay.ShowMessage("Couln't save view \"" + name + "\"");
+        }
+
+        public static void SetAimpointZoomDepth()
+        {
+            RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
+
+            int viewWidth = vp.Size.Width;
+            int viewHeight = vp.Size.Height;
+
+            using (ZBufferCapture depthBuffer = new ZBufferCapture(vp))
+            {
+                Point3d currentCursorWorldPosition = depthBuffer.WorldPointAt(viewWidth / 2, viewHeight / 2);
+                vp.SetCameraTarget(currentCursorWorldPosition, false);
+                RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
+            }
+
+            Overlay.ShowMessage("Zoom depth set on the aimpoint");
         }
     }
 }
