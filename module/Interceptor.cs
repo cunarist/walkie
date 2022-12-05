@@ -141,7 +141,9 @@ namespace RhinoWASD
                 Cursor.Position = vp.ClientToScreen(new Point2d(viewWidth / 2, viewHeight / 2));
             }
             else
+            {
                 Cursor.Position = CursorPositionBuffer;
+            }
             ShowCursor(true);
 
             W = A = S = D = Q = E = Shift = Esc = Enter = false;
@@ -226,8 +228,8 @@ namespace RhinoWASD
             else if (wParam == (IntPtr)WM_LBUTTONUP)
             {
                 Overlay.ShowImage(null);
-                RhinoHelpers.SetAimpointZoomDepth();
                 StopWASD(true, true);
+                RhinoHelpers.SetAimpointZoomDepth();
             }
             else if (wParam == (IntPtr)WM_RBUTTONUP)
                 StopWASD(false, false);
