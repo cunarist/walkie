@@ -115,10 +115,21 @@ namespace RhinoWASD
         {
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
 
-            if (!ShouldKeepView)
+            if (ShouldKeepView)
+            {
+                RhinoHelpers.SetAimpointZoomDepth(0.5, 0.5);
+                int viewWidth = vp.Size.Width;
+                int viewHeight = vp.Size.Height;
+                Cursor.Position = vp.ClientToScreen(new Point2d(viewWidth / 2, viewHeight / 2));
+            }
+            else
             {
                 vp.SetCameraDirection(BeforeDirection, false);
                 vp.SetCameraLocation(BeforeLocation, false);
+                Point3d newTarget = vp.CameraLocation + vp.CameraDirection * (speed * 100);
+                vp.SetCameraTarget(newTarget, false);
+                RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
+                Cursor.Position = CursorPositionBuffer;
             }
 
             Overlay.ShowImage(null);
@@ -133,12 +144,6 @@ namespace RhinoWASD
 
             UnhookWindowsHookEx(_kHook);
             UnhookWindowsHookEx(_mHook);
-
-            Point3d newTarget = vp.CameraLocation + vp.CameraDirection * (speed * 100);
-            vp.SetCameraTarget(newTarget, false);
-            RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
-
-            Cursor.Position = CursorPositionBuffer;
             ShowCursor(true);
 
             Q = W = E = S = A = D = Shift = Esc = Enter = false;
@@ -218,9 +223,11 @@ namespace RhinoWASD
             if (nCode < 0)
                 return CallNextHookEx((IntPtr)0, nCode, wParam, lParam);
 
-            if (wParam == (IntPtr)WM_LBUTTONDOWN)
+            if (wParam == (IntPtr)WM_LBUTTONUP)
                 StopWASD(true);
-            else if (wParam == (IntPtr)WM_MBUTTONDOWN || wParam == (IntPtr)WM_RBUTTONDOWN)
+            else if (wParam == (IntPtr)WM_RBUTTONUP)
+                StopWASD(false);
+            else if (wParam == (IntPtr)WM_MBUTTONDOWN)
                 StopWASD(false);
 
             if (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_KEYUP)
@@ -228,22 +235,18 @@ namespace RhinoWASD
                 bool IsKeyDown = wParam == (IntPtr)WM_KEYDOWN;
                 Keys key = (Keys)Marshal.ReadInt32(lParam);
 
-                if (key == Keys.Enter)
-                    StopWASD(true);
-                else if (key == Keys.Escape)
-                    StopWASD(false);
-                else if (key == Keys.Q)
-                    Q = IsKeyDown;
-                else if (key == Keys.W)
+                if (key == Keys.W)
                     W = IsKeyDown;
-                else if (key == Keys.E)
-                    E = IsKeyDown;
                 else if (key == Keys.A)
                     A = IsKeyDown;
                 else if (key == Keys.S)
                     S = IsKeyDown;
                 else if (key == Keys.D)
                     D = IsKeyDown;
+                else if (key == Keys.Q)
+                    Q = IsKeyDown;
+                else if (key == Keys.E)
+                    E = IsKeyDown;
                 else if (key == Keys.LShiftKey || key == Keys.RShiftKey || key == Keys.Shift || key == Keys.ShiftKey)
                     Shift = IsKeyDown;
                 else if (key == Keys.H)
@@ -253,6 +256,10 @@ namespace RhinoWASD
                     else
                         Overlay.ShowImage(null);
                 }
+                else if (key == Keys.Enter && !IsKeyDown)
+                    StopWASD(true);
+                else if (key == Keys.Escape && !IsKeyDown)
+                    StopWASD(false);
                 else if (key == Keys.Z && IsKeyDown)
                 {
                     if (lockZAxis)
