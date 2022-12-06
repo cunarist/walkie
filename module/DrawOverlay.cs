@@ -78,7 +78,7 @@ namespace Display
             }
 
             args.Display.DrawBitmap(
-              bitmap,
+              bitmapImage,
               (int)Math.Round((screenSize.Width - messageSize.Width) * 0.5),
               (int)Math.Round((screenSize.Height - messageSize.Height) * 0.9)
               );
@@ -124,7 +124,7 @@ namespace Display
 
             // SAVE
             g.Save();
-            bitmap = new DisplayBitmap(bmp);
+            bitmapImage = new DisplayBitmap(bmp);
         }
 
         public static void CalculateString(string text, ref Font font)
@@ -153,7 +153,7 @@ namespace Display
         #region ImageOverlay
 
         private static Image displayImage = null;
-        private static DisplayBitmap bitmap = null;
+        private static DisplayBitmap bitmapImage = null;
 
         public static void ShowImage(Image img)
         {
@@ -183,10 +183,10 @@ namespace Display
             if (screenSize != args.Viewport.Bounds.Size)
             {
                 screenSize = args.Viewport.Bounds.Size;
-                bitmap = DrawInfoImage(displayImage);
+                bitmapImage = DrawInfoImage(displayImage);
             }
 
-            args.Display.DrawBitmap(bitmap, 0, 0);
+            args.Display.DrawBitmap(bitmapImage, 0, 0);
         }
 
         private static DisplayBitmap DrawInfoImage(Image img)
