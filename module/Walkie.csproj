@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandWASD.cs" />
+    <Compile Include="DrawAimpoint.cs" />
     <Compile Include="DrawOverlay.cs" />
     <Compile Include="Interceptor.cs" />
     <Compile Include="NativeMethods.cs" />
@@ -77,10 +78,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\aimpoint.png" />
+    <None Include="Resources\help.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\help.png" />
+    <None Include="Resources\aimpoint.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

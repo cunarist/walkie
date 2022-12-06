@@ -82,10 +82,14 @@ namespace RhinoWASD
 
         public static void StartWASD()
         {
-            //Save Mouse Position & set cursor to primaryscreen center
+            _kHook = SetHook(_proc, true);
+            _mHook = SetHook(_proc, false);
             ShowCursor(false);
-            CursorPositionBuffer = new System.Drawing.Point(Cursor.Position.X, Cursor.Position.Y);
+
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
+
+            CursorPositionBuffer = new System.Drawing.Point(Cursor.Position.X, Cursor.Position.Y);
+
             speed = vp.CameraLocation.DistanceTo(vp.CameraTarget) / 100;
             speed = Math.Max(MIN_SPEED, speed);
             speed = Math.Min(MAX_SPEED, speed);
@@ -105,9 +109,7 @@ namespace RhinoWASD
                 timer.Start();
             }
 
-            _kHook = SetHook(_proc, true);
-            _mHook = SetHook(_proc, false);
-
+            Aimpoint.ShowImage(true);
             ShowSpeedMessage();
         }
 
@@ -132,6 +134,7 @@ namespace RhinoWASD
                 Cursor.Position = CursorPositionBuffer;
             }
 
+            Aimpoint.ShowImage(false);
             Overlay.ShowImage(null);
 
             if (timer != null)
@@ -146,7 +149,7 @@ namespace RhinoWASD
             UnhookWindowsHookEx(_mHook);
             ShowCursor(true);
 
-            Q = W = E = S = A = D = Shift = Esc = Enter = false;
+            W = A = S = D = Q = E = Shift = Esc = Enter = false;
         }
 
         private static void OnTick(object sender, EventArgs args)
