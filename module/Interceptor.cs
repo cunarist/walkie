@@ -252,7 +252,7 @@ namespace RhinoWASD
                 else if (key == Keys.H)
                 {
                     if (IsKeyDown)
-                        Overlay.ShowImage(Properties.Resources.Info);
+                        Overlay.ShowImage(Properties.Resources.help);
                     else
                         Overlay.ShowImage(null);
                 }
