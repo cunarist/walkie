@@ -29,6 +29,7 @@ namespace RhinoWASD
         private const double MIN_SPEED = 1E-2;
         private const double MAX_SPEED = 1E6;
 
+
         private static LowLevelProc _proc = HookCallback;
         private static IntPtr _kHook = IntPtr.Zero, _mHook = IntPtr.Zero;
         private static Timer timer;
@@ -36,17 +37,28 @@ namespace RhinoWASD
         private static Vector3d BeforeDirection;
         private static double speed = 1;
         private static System.Drawing.Point CursorPositionBuffer = System.Drawing.Point.Empty;
+        private static System.Drawing.Point LastPos = System.Drawing.Point.Empty;
         private static System.Drawing.Rectangle ScreenRect;
 
-        public static bool W = false;
-        public static bool A = false;
-        public static bool S = false;
-        public static bool D = false;
-        public static bool Q = false;
-        public static bool E = false;
-        public static bool Shift = false;
-        public static bool Esc = false;
-        public static bool Enter = false;
+        private static System.Drawing.Point MidPoint
+        {
+            get
+            {
+                return new System.Drawing.Point(
+                  ScreenRect.Left + ScreenRect.Width / 2,
+                  ScreenRect.Top + ScreenRect.Height / 2);
+            }
+        }
+
+        public static bool Q = false,
+            W = false,
+            E = false,
+            S = false,
+            A = false,
+            D = false,
+            Shift = false,
+            Esc = false,
+            Enter = false;
 
         public static bool lockZAxis = false;
 
@@ -73,14 +85,13 @@ namespace RhinoWASD
             //Save Mouse Position & set cursor to primaryscreen center
             ShowCursor(false);
             CursorPositionBuffer = new System.Drawing.Point(Cursor.Position.X, Cursor.Position.Y);
-
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
-
             speed = vp.CameraLocation.DistanceTo(vp.CameraTarget) / 100;
             speed = Math.Max(MIN_SPEED, speed);
             speed = Math.Min(MAX_SPEED, speed);
 
             ScreenRect = Screen.PrimaryScreen.Bounds;
+            Cursor.Position = MidPoint;
 
             BeforeLocation = vp.CameraLocation;
             BeforeDirection = new Vector3d(vp.CameraDirection);
@@ -120,25 +131,17 @@ namespace RhinoWASD
                 timer = null;
             }
 
-            if (ShouldKeepView)
-            {
-                RhinoHelpers.SetAimpointZoomDepth();
-                int viewWidth = vp.Size.Width;
-                int viewHeight = vp.Size.Height;
-                Cursor.Position = vp.ClientToScreen(new Point2d(viewWidth / 2, viewHeight / 2));
-            }
-            else
-            {
-                Point3d newTarget = vp.CameraLocation + vp.CameraDirection * (speed * 100);
-                vp.SetCameraTarget(newTarget, false);
-                RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
-            }
-
             UnhookWindowsHookEx(_kHook);
             UnhookWindowsHookEx(_mHook);
+
+            Point3d newTarget = vp.CameraLocation + vp.CameraDirection * (speed * 100);
+            vp.SetCameraTarget(newTarget, false);
+            RhinoDoc.ActiveDoc.Views.ActiveView.Redraw();
+
+            Cursor.Position = CursorPositionBuffer;
             ShowCursor(true);
 
-            W = A = S = D = Q = E = Shift = Esc = Enter = false;
+            Q = W = E = S = A = D = Shift = Esc = Enter = false;
         }
 
         private static void OnTick(object sender, EventArgs args)
@@ -174,14 +177,23 @@ namespace RhinoWASD
 
             double originalZ = loc.Z;
 
-            if (W) { loc += dir * finalSpeed; }
-            if (A) { loc -= Vector3d.CrossProduct(dir, up) * finalSpeed; }
-            if (S) { loc -= dir * finalSpeed; }
-            if (D) { loc += Vector3d.CrossProduct(dir, up) * finalSpeed; }
-            if (Q) { loc -= Vector3d.ZAxis * finalSpeed; }
-            if (E) { loc += Vector3d.ZAxis * finalSpeed; }
+            if (W)
+                loc += dir * finalSpeed;
+            if (A)
+                loc -= Vector3d.CrossProduct(dir, up) * finalSpeed;
+            if (S)
+                loc -= dir * finalSpeed;
+            if (D)
+                loc += Vector3d.CrossProduct(dir, up) * finalSpeed;
+            if (Q)
+                loc -= Vector3d.ZAxis * finalSpeed;
+            if (E)
+                loc += Vector3d.ZAxis * finalSpeed;
 
-            if (lockZAxis) { loc.Z = originalZ; }
+            if (lockZAxis)
+            {
+                loc.Z = originalZ;
+            }
 
             vp.SetCameraLocation(loc, false);
 
@@ -208,9 +220,7 @@ namespace RhinoWASD
 
             if (wParam == (IntPtr)WM_LBUTTONDOWN)
                 StopWASD(true);
-            else if (wParam == (IntPtr)WM_RBUTTONDOWN)
-                StopWASD(false);
-            else if (wParam == (IntPtr)WM_MBUTTONDOWN)
+            else if (wParam == (IntPtr)WM_MBUTTONDOWN || wParam == (IntPtr)WM_RBUTTONDOWN)
                 StopWASD(false);
 
             if (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_KEYUP)
@@ -222,24 +232,24 @@ namespace RhinoWASD
                     StopWASD(true);
                 else if (key == Keys.Escape)
                     StopWASD(false);
+                else if (key == Keys.Q)
+                    Q = IsKeyDown;
                 else if (key == Keys.W)
                     W = IsKeyDown;
+                else if (key == Keys.E)
+                    E = IsKeyDown;
                 else if (key == Keys.A)
                     A = IsKeyDown;
                 else if (key == Keys.S)
                     S = IsKeyDown;
                 else if (key == Keys.D)
                     D = IsKeyDown;
-                else if (key == Keys.Q)
-                    Q = IsKeyDown;
-                else if (key == Keys.E)
-                    E = IsKeyDown;
                 else if (key == Keys.LShiftKey || key == Keys.RShiftKey || key == Keys.Shift || key == Keys.ShiftKey)
                     Shift = IsKeyDown;
                 else if (key == Keys.H)
                 {
                     if (IsKeyDown)
-                        Overlay.ShowImage(Properties.Resources.help);
+                        Overlay.ShowImage(Properties.Resources.Info);
                     else
                         Overlay.ShowImage(null);
                 }
@@ -268,7 +278,7 @@ namespace RhinoWASD
             else if (wParam == (IntPtr)WM_MOUSEMOVE)
             {
                 NativeMethods.MSLLHOOKSTRUCT data = NativeMethods.GetData((IntPtr)lParam);
-                MouseOffset = new System.Drawing.Point(data.pt.x - CursorPositionBuffer.X, data.pt.y - CursorPositionBuffer.Y);
+                MouseOffset = new System.Drawing.Point(data.pt.x - MidPoint.X, data.pt.y - MidPoint.Y);
             }
             else if (wParam == (IntPtr)WM_MOUSEWHEEL)
             {
@@ -291,6 +301,7 @@ namespace RhinoWASD
             }
             else if ((int)wParam >= WM_LBUTTONDOWN && (int)wParam <= WM_RBUTTONUP)
             {
+                //RhinoApp.WriteLine("CLICK " + DateTime.Now.Ticks);
             }
             else
                 return CallNextHookEx((IntPtr)0, nCode, wParam, lParam);
