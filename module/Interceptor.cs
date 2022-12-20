@@ -35,9 +35,9 @@ namespace RhinoWASD
         private static Timer timer;
         private static Point3d BeforeLocation;
         private static Vector3d BeforeDirection;
+        private static bool shouldUseAimpoint = false;
         private static double speed = 1;
         private static System.Drawing.Point CursorPositionBuffer = System.Drawing.Point.Empty;
-        private static System.Drawing.Point LastPos = System.Drawing.Point.Empty;
         private static System.Drawing.Rectangle ScreenRect;
 
         private static System.Drawing.Point MidPoint
@@ -110,6 +110,8 @@ namespace RhinoWASD
             }
 
             Aimpoint.ShowImage(true);
+            shouldUseAimpoint = true;
+
             ShowSpeedMessage();
         }
 
@@ -119,10 +121,13 @@ namespace RhinoWASD
 
             if (ShouldKeepView)
             {
-                RhinoHelpers.SetAimpointZoomDepth(0.5, 0.5);
-                int viewWidth = vp.Size.Width;
-                int viewHeight = vp.Size.Height;
-                Cursor.Position = vp.ClientToScreen(new Point2d(viewWidth / 2, viewHeight / 2));
+                if (shouldUseAimpoint)
+                {
+                    RhinoHelpers.SetAimpointZoomDepth(0.5, 0.5);
+                    int viewWidth = vp.Size.Width;
+                    int viewHeight = vp.Size.Height;
+                    Cursor.Position = vp.ClientToScreen(new Point2d(viewWidth / 2, viewHeight / 2));
+                }
             }
             else
             {
@@ -135,6 +140,8 @@ namespace RhinoWASD
             }
 
             Aimpoint.ShowImage(false);
+            shouldUseAimpoint = false;
+
             Overlay.ShowImage(null);
 
             if (timer != null)
@@ -185,18 +192,27 @@ namespace RhinoWASD
 
             double originalZ = loc.Z;
 
-            if (W)
-                loc += dir * finalSpeed;
-            if (A)
-                loc -= Vector3d.CrossProduct(dir, up) * finalSpeed;
-            if (S)
-                loc -= dir * finalSpeed;
-            if (D)
-                loc += Vector3d.CrossProduct(dir, up) * finalSpeed;
-            if (Q)
-                loc -= Vector3d.ZAxis * finalSpeed;
-            if (E)
-                loc += Vector3d.ZAxis * finalSpeed;
+            if (W || A || S || D || Q || E)
+            {
+                if (shouldUseAimpoint)
+                {
+                    Aimpoint.ShowImage(false);
+                    shouldUseAimpoint = false;
+                }
+
+                if (W)
+                    loc += dir * finalSpeed;
+                if (A)
+                    loc -= Vector3d.CrossProduct(dir, up) * finalSpeed;
+                if (S)
+                    loc -= dir * finalSpeed;
+                if (D)
+                    loc += Vector3d.CrossProduct(dir, up) * finalSpeed;
+                if (Q)
+                    loc -= Vector3d.ZAxis * finalSpeed;
+                if (E)
+                    loc += Vector3d.ZAxis * finalSpeed;
+            }
 
             if (lockZAxis)
             {
