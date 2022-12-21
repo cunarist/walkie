@@ -4,6 +4,7 @@ using Rhino.Display;
 using Rhino.Geometry;
 using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace RhinoWASD
@@ -32,13 +33,17 @@ namespace RhinoWASD
 
         private static LowLevelProc _proc = HookCallback;
         private static IntPtr _kHook = IntPtr.Zero, _mHook = IntPtr.Zero;
-        private static Timer timer;
+        private static System.Windows.Forms.Timer timer;
         private static Point3d BeforeLocation;
         private static Vector3d BeforeDirection;
         private static bool shouldUseAimpoint = false;
         private static double speed = 1;
         private static System.Drawing.Point CursorPositionBuffer = System.Drawing.Point.Empty;
         private static System.Drawing.Rectangle ScreenRect;
+
+        private static Thread distanceFinder = null;
+        private static double frontDistance = 0;
+        private static double bottomDistance = 0;
 
         private static System.Drawing.Point MidPoint
         {
@@ -60,7 +65,7 @@ namespace RhinoWASD
             Esc = false,
             Enter = false;
 
-        public static bool lockZAxis = false;
+        public static bool gravity = false;
 
         public static System.Drawing.Point MouseOffset = System.Drawing.Point.Empty;
 
@@ -103,7 +108,7 @@ namespace RhinoWASD
             Q = W = E = S = A = D = Shift = Esc = Enter = false;
             if (timer == null)
             {
-                timer = new Timer();
+                timer = new System.Windows.Forms.Timer();
                 timer.Interval = TIMER_INVERVAL;
                 timer.Tick += OnTick;
                 timer.Start();
@@ -112,12 +117,27 @@ namespace RhinoWASD
             Aimpoint.ShowImage(true);
             shouldUseAimpoint = true;
 
+            void keepFindingDistance()
+            {
+                while (true)
+                {
+                    (frontDistance, bottomDistance) = RhinoHelpers.GetPhysicalDistance();
+                    Thread.Sleep(100);
+                }
+            }
+
+            distanceFinder = new Thread(keepFindingDistance);
+            distanceFinder.Start();
+
             ShowSpeedMessage();
         }
 
         public static void StopWASD(bool ShouldKeepView)
         {
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
+
+            distanceFinder.Abort();
+            distanceFinder = null;
 
             if (ShouldKeepView)
             {
@@ -141,6 +161,7 @@ namespace RhinoWASD
 
             Aimpoint.ShowImage(false);
             shouldUseAimpoint = false;
+            gravity = false;
 
             Overlay.ShowImage(null);
 
@@ -161,9 +182,6 @@ namespace RhinoWASD
 
         private static void OnTick(object sender, EventArgs args)
         {
-            if (MouseOffset.IsEmpty && !Q && !W && !E && !A && !S && !D)
-                return;
-
             RhinoViewport vp = RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewport;
             Point3d loc = vp.CameraLocation;
             Vector3d dir = new Vector3d(vp.CameraDirection);
@@ -187,11 +205,43 @@ namespace RhinoWASD
 
             double finalSpeed = speed;
 
-            if (Shift)
-                finalSpeed *= 4;
+            if (Shift) { finalSpeed *= 4; }
 
-            double originalZ = loc.Z;
+            double bottomSpeedAddition = 0;
+            if (bottomDistance != 0 && gravity)
+            {
+                double unitSize = 1;
+                UnitSystem unitSystem = RhinoDoc.ActiveDoc.ModelUnitSystem;
+                if (unitSystem == UnitSystem.Meters) { unitSize = 1; }
+                else if (unitSystem == UnitSystem.Nanometers) { unitSize = 1E-9; }
+                else if (unitSystem == UnitSystem.Microns) { unitSize = 1E-6; }
+                else if (unitSystem == UnitSystem.Millimeters) { unitSize = 1E-3; }
+                else if (unitSystem == UnitSystem.Centimeters) { unitSize = 1E-2; }
+                else if (unitSystem == UnitSystem.Decimeters) { unitSize = 1E-1; }
+                else if (unitSystem == UnitSystem.Dekameters) { unitSize = 1E1; }
+                else if (unitSystem == UnitSystem.Hectometers) { unitSize = 1E2; }
+                else if (unitSystem == UnitSystem.Kilometers) { unitSize = 1E3; }
+                else if (unitSystem == UnitSystem.Megameters) { unitSize = 1E6; }
+                else if (unitSystem == UnitSystem.Gigameters) { unitSize = 1E9; }
+                else if (unitSystem == UnitSystem.Inches) { unitSize = 25.4 / 1000; }
+                else if (unitSystem == UnitSystem.Feet) { unitSize = 304.8 / 1000; }
+                else if (unitSystem == UnitSystem.Yards) { unitSize = 304.8 / 1000; }
+                else if (unitSystem == UnitSystem.Miles) { unitSize = 1609.34; }
+                double bottomDistanceInMeters = bottomDistance * unitSize;
 
+                double bottomThresholdInMeters = 1.8;
+                bottomSpeedAddition = Math.Pow(Math.Min(bottomDistanceInMeters - bottomThresholdInMeters, 3) * 0.2, 3) / unitSize * 3;
+            }
+
+            double sideSpeedDrag = 0;
+            if (frontDistance != 0 && gravity)
+            {
+                double frontThreshold = speed * 0.1;
+                if (frontThreshold < frontDistance)
+                { sideSpeedDrag = Math.Min(0.99, speed / (frontDistance - frontThreshold) * 10); }
+            }
+
+            Vector3d movement = new Vector3d(0, 0, 0);
             if (W || A || S || D || Q || E)
             {
                 if (shouldUseAimpoint)
@@ -200,25 +250,22 @@ namespace RhinoWASD
                     shouldUseAimpoint = false;
                 }
 
-                if (W)
-                    loc += dir * finalSpeed;
-                if (A)
-                    loc -= Vector3d.CrossProduct(dir, up) * finalSpeed;
-                if (S)
-                    loc -= dir * finalSpeed;
-                if (D)
-                    loc += Vector3d.CrossProduct(dir, up) * finalSpeed;
-                if (Q)
-                    loc -= Vector3d.ZAxis * finalSpeed;
-                if (E)
-                    loc += Vector3d.ZAxis * finalSpeed;
-            }
+                if (W) { movement += dir * finalSpeed; }
+                if (A) { movement -= Vector3d.CrossProduct(dir, up) * finalSpeed; }
+                if (S) { movement -= dir * finalSpeed; }
+                if (D) { movement += Vector3d.CrossProduct(dir, up) * finalSpeed; }
 
-            if (lockZAxis)
-            {
-                loc.Z = originalZ;
-            }
+                if (gravity) { movement.Z = 0; }
 
+                if (Q) { movement -= Vector3d.ZAxis * finalSpeed; }
+                if (E) { movement += Vector3d.ZAxis * finalSpeed; }
+
+            }
+            movement.X *= (1 - sideSpeedDrag);
+            movement.Y *= (1 - sideSpeedDrag);
+            movement.Z -= bottomSpeedAddition;
+
+            loc += movement;
             vp.SetCameraLocation(loc, false);
 
             Point3d newTarget = vp.CameraLocation + vp.CameraDirection * (speed * 100);
@@ -281,15 +328,15 @@ namespace RhinoWASD
                     StopWASD(false);
                 else if (key == Keys.Z && IsKeyDown)
                 {
-                    if (lockZAxis)
+                    if (gravity)
                     {
-                        lockZAxis = false;
-                        Overlay.ShowMessage("Vertical movement enabled");
+                        gravity = false;
+                        Overlay.ShowMessage("Gravity disabled");
                     }
                     else
                     {
-                        lockZAxis = true;
-                        Overlay.ShowMessage("Vertical movement disabled");
+                        gravity = true;
+                        Overlay.ShowMessage("Gravity enabled");
                     }
                 }
                 else if (key == Keys.Left && IsKeyDown)
