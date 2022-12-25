@@ -275,7 +275,7 @@ namespace RhinoWASD
                     StopWASD(true);
                 else if (key == Keys.Escape && !IsKeyDown)
                     StopWASD(false);
-                else if (key == Keys.Z && IsKeyDown)
+                else if (key == Keys.Tab && IsKeyDown)
                 {
                     if (flatMovement)
                     {
@@ -292,8 +292,10 @@ namespace RhinoWASD
                     RhinoHelpers.PreviousNamedView();
                 else if (key == Keys.Right && IsKeyDown)
                     RhinoHelpers.NextNamedView();
-                else if (key == Keys.Oemplus && IsKeyDown)
+                else if (key == Keys.Up && IsKeyDown)
                     RhinoHelpers.SaveNamedView();
+                else if (key == Keys.Down && IsKeyDown)
+                    RhinoHelpers.DeleteNamedView();
                 else if (key == Keys.PrintScreen)
                     return CallNextHookEx((IntPtr)0, nCode, wParam, lParam);
             }

@@ -56,14 +56,34 @@ namespace RhinoWASD
 
         public static void SaveNamedView()
         {
-            string name = Environment.UserName + " " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            if (RhinoDoc.ActiveDoc.NamedViews.Add(name, RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewportID) >= 0)
+            string name = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            int result = RhinoDoc.ActiveDoc.NamedViews.Add(name, RhinoDoc.ActiveDoc.Views.ActiveView.ActiveViewportID);
+            if (result >= 0)
             {
                 Overlay.ShowMessage("\"" + name + "\" saved as named view");
                 CurrentNamedView = name;
             }
             else
+            {
                 Overlay.ShowMessage("Couln't save view \"" + name + "\"");
+            }
+        }
+
+        public static void DeleteNamedView()
+        {
+            int count = RhinoDoc.ActiveDoc.NamedViews.Count;
+            if (count < 1)
+                return;
+
+            bool result = RhinoDoc.ActiveDoc.NamedViews.Delete(CurrentNamedView);
+            if (result)
+            {
+                Overlay.ShowMessage("Named view \"" + CurrentNamedView + "\" deleted");
+            }
+            else
+            {
+                Overlay.ShowMessage("Cannot delete named view \"" + CurrentNamedView + "\"");
+            }
         }
 
         public static void SetAimpointZoomDepth(double widthRatio, double heightRatio)
