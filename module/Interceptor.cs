@@ -128,6 +128,10 @@ namespace RhinoWASD
                     int viewHeight = vp.Size.Height;
                     Cursor.Position = vp.ClientToScreen(new Point2d(viewWidth / 2, viewHeight / 2));
                 }
+                else
+                {
+                    Cursor.Position = CursorPositionBuffer;
+                }
             }
             else
             {
