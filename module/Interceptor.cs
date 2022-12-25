@@ -60,7 +60,7 @@ namespace RhinoWASD
             Esc = false,
             Enter = false;
 
-        public static bool lockZAxis = false;
+        public static bool flatMovement = false;
 
         public static System.Drawing.Point MouseOffset = System.Drawing.Point.Empty;
 
@@ -187,11 +187,9 @@ namespace RhinoWASD
 
             double finalSpeed = speed;
 
-            if (Shift)
-                finalSpeed *= 4;
+            if (Shift) { finalSpeed *= 4; }
 
-            double originalZ = loc.Z;
-
+            Vector3d movement = new Vector3d(0, 0, 0);
             if (W || A || S || D || Q || E)
             {
                 if (shouldUseAimpoint)
@@ -200,25 +198,19 @@ namespace RhinoWASD
                     shouldUseAimpoint = false;
                 }
 
-                if (W)
-                    loc += dir * finalSpeed;
-                if (A)
-                    loc -= Vector3d.CrossProduct(dir, up) * finalSpeed;
-                if (S)
-                    loc -= dir * finalSpeed;
-                if (D)
-                    loc += Vector3d.CrossProduct(dir, up) * finalSpeed;
-                if (Q)
-                    loc -= Vector3d.ZAxis * finalSpeed;
-                if (E)
-                    loc += Vector3d.ZAxis * finalSpeed;
+                if (W) { movement += dir * finalSpeed; }
+                if (A) { movement -= Vector3d.CrossProduct(dir, up) * finalSpeed; }
+                if (S) { movement -= dir * finalSpeed; }
+                if (D) { movement += Vector3d.CrossProduct(dir, up) * finalSpeed; }
+
+                if (flatMovement) { movement.Z = 0; }
+
+                if (Q) { movement -= Vector3d.ZAxis * finalSpeed; }
+                if (E) { movement += Vector3d.ZAxis * finalSpeed; }
+
             }
 
-            if (lockZAxis)
-            {
-                loc.Z = originalZ;
-            }
-
+            loc += movement;
             vp.SetCameraLocation(loc, false);
 
             Point3d newTarget = vp.CameraLocation + vp.CameraDirection * (speed * 100);
@@ -281,15 +273,15 @@ namespace RhinoWASD
                     StopWASD(false);
                 else if (key == Keys.Z && IsKeyDown)
                 {
-                    if (lockZAxis)
+                    if (flatMovement)
                     {
-                        lockZAxis = false;
-                        Overlay.ShowMessage("Vertical movement enabled");
+                        flatMovement = false;
+                        Overlay.ShowMessage("Flat movement disabled");
                     }
                     else
                     {
-                        lockZAxis = true;
-                        Overlay.ShowMessage("Vertical movement disabled");
+                        flatMovement = true;
+                        Overlay.ShowMessage("Flat movement enabled");
                     }
                 }
                 else if (key == Keys.Left && IsKeyDown)
