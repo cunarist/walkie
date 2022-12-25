@@ -3,6 +3,7 @@ using Rhino.Display;
 using Rhino.UI;
 using System;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace Display
 {
@@ -22,6 +23,12 @@ namespace Display
         private const int paddingLeftRight = 14;
         private const int paddingTopBottom = 6;
 
+        async public static void RefreshViews(int milliseconds)
+        {
+            await Task.Delay(milliseconds);
+            RhinoDoc.ActiveDoc.Views.Redraw();
+        }
+
         public static void ShowMessage(string text) { ShowMessage(text, 2000); }
 
         public static void ShowMessage(string text, int durationMS)
@@ -36,6 +43,7 @@ namespace Display
 
             message = text;
             showMessageUntil = DateTime.Now.AddMilliseconds(durationMS);
+            RefreshViews(durationMS);
             screenSize = Size.Empty;
             messageSize = Size.Empty;
 
