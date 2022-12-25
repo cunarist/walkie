@@ -36,6 +36,7 @@ namespace RhinoWASD
         private static Point3d BeforeLocation;
         private static Vector3d BeforeDirection;
         private static bool shouldUseAimpoint = false;
+        public static bool flatMovement = false;
         private static double speed = 1;
         private static System.Drawing.Point CursorPositionBuffer = System.Drawing.Point.Empty;
         private static System.Drawing.Rectangle ScreenRect;
@@ -59,8 +60,6 @@ namespace RhinoWASD
             Shift = false,
             Esc = false,
             Enter = false;
-
-        public static bool flatMovement = false;
 
         public static System.Drawing.Point MouseOffset = System.Drawing.Point.Empty;
 
@@ -111,6 +110,8 @@ namespace RhinoWASD
 
             Aimpoint.ShowImage(true);
             shouldUseAimpoint = true;
+
+            flatMovement = false;
 
             ShowSpeedMessage();
         }
